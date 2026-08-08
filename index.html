@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Prostat kanserinde lenf nodu invazyonu (LNİ) riski için ücretsiz Briganti 2017 ve 2019 nomogram hesaplayıcısı. Üyelik yok, çevrimdışı çalışır.">
+<meta name="theme-color" content="#0f4c81">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Briganti LNİ">
+<title>Briganti Nomogramı — LNİ Risk Hesaplayıcı (2017 &amp; 2019)</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="wrap header-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">B</span>
+      <div>
+        <h1>Briganti Nomogramı</h1>
+        <p class="tagline">Prostat kanserinde lenf nodu invazyonu (LNİ) riski</p>
+      </div>
+    </div>
+    <button id="installBtn" class="install-btn" type="button" hidden>Uygulamayı yükle</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="notice" role="note">
+    <strong>Katsayı uyarısı:</strong> Briganti nomogramlarının orijinal regresyon katsayıları yayınlarda
+    açık olarak paylaşılmamıştır. Bu araç, yayınlanan değişken setini ve risk sıralamasını yeniden üreten
+    <strong>yaklaşık katsayılarla</strong> çalışır; sonuç resmî nomogramın birebir çıktısı değildir.
+    Bağlayıcı karar için resmî hesaplayıcıyı kullanın:
+    <a href="https://www.evidencio.com/models/show/1555?v=3.0" target="_blank" rel="noopener">Evidencio 2017</a> ·
+    <a href="https://www.evidencio.com/models/show/1555?v=4.0" target="_blank" rel="noopener">Evidencio 2019</a>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Nomogram modeli">
+    <button class="tab is-active" role="tab" id="tab-2017" aria-controls="panel-2017" aria-selected="true" data-model="2017" type="button">
+      <span class="tab-title">Briganti 2017</span>
+      <span class="tab-sub">Sistematik biyopsi</span>
+    </button>
+    <button class="tab" role="tab" id="tab-2019" aria-controls="panel-2019" aria-selected="false" tabindex="-1" data-model="2019" type="button">
+      <span class="tab-title">Briganti 2019</span>
+      <span class="tab-sub">MR-hedefli biyopsi</span>
+    </button>
+  </div>
+
+  <!-- ============================ BRIGANTI 2017 ============================ -->
+  <section class="panel" id="panel-2017" role="tabpanel" aria-labelledby="tab-2017">
+    <form class="card form" id="form-2017" autocomplete="off" novalidate>
+      <p class="form-note">
+        Sistematik (standart) biyopsi ile tanı alan hastalar içindir.
+        Gandaglia G, ve ark. <em>Eur Urol</em> 2017;72:632–640.
+      </p>
+
+      <div class="field">
+        <label for="psa-2017">Ameliyat öncesi PSA <span class="unit">(ng/mL)</span></label>
+        <input type="number" id="psa-2017" name="psa" inputmode="decimal" step="0.01" min="0" max="50" placeholder="örn. 8,4">
+        <p class="error" data-error-for="psa-2017"></p>
+      </div>
+
+      <div class="field">
+        <label for="stage-2017">Klinik T evresi</label>
+        <select id="stage-2017" name="stage">
+          <option value="0">Klinik evre T1</option>
+          <option value="1">Klinik evre T2</option>
+          <option value="2">Klinik evre T3</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="gleason-2017">Biyopsi Gleason skoru / ISUP derece grubu</label>
+        <select id="gleason-2017" name="gleason">
+          <option value="1">3 + 3 (ISUP Derece Grubu 1)</option>
+          <option value="2">3 + 4 (ISUP Derece Grubu 2)</option>
+          <option value="3">4 + 3 (ISUP Derece Grubu 3)</option>
+          <option value="4">4 + 4 / 3 + 5 / 5 + 3 (ISUP Derece Grubu 4)</option>
+          <option value="5">4 + 5 / 5 + 4 / 5 + 5 (ISUP Derece Grubu 5)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="coreshigh-2017">En yüksek dereceli kanser içeren kor yüzdesi <span class="unit">(%)</span></label>
+        <input type="number" id="coreshigh-2017" name="coreshigh" inputmode="decimal" step="1" min="0" max="100" placeholder="örn. 40">
+        <div class="helper-row">
+          <p class="helper">Biyopside en yüksek dereceli hastalık içeren kor oranı.</p>
+          <button class="link-btn" type="button" data-toggle-helper="helper-coreshigh-2017" aria-expanded="false">Kor sayısından hesapla</button>
+        </div>
+        <div class="mini-calc" id="helper-coreshigh-2017" data-target="coreshigh-2017" hidden>
+          <div>
+            <label for="pos-coreshigh-2017">Pozitif</label>
+            <input type="number" id="pos-coreshigh-2017" data-role="pos" inputmode="numeric" step="1" min="0" placeholder="0">
+          </div>
+          <span class="mini-sep">/</span>
+          <div>
+            <label for="tot-coreshigh-2017">Toplam</label>
+            <input type="number" id="tot-coreshigh-2017" data-role="tot" inputmode="numeric" step="1" min="1" placeholder="12">
+          </div>
+        </div>
+        <p class="error" data-error-for="coreshigh-2017"></p>
+      </div>
+
+      <div class="field">
+        <label for="coreslow-2017">Daha düşük dereceli kanser içeren kor yüzdesi <span class="unit">(%)</span></label>
+        <input type="number" id="coreslow-2017" name="coreslow" inputmode="decimal" step="1" min="0" max="90" placeholder="örn. 10">
+        <div class="helper-row">
+          <p class="helper">Daha düşük dereceli hastalık içeren kor oranı. Yoksa 0 girin.</p>
+          <button class="link-btn" type="button" data-toggle-helper="helper-coreslow-2017" aria-expanded="false">Kor sayısından hesapla</button>
+        </div>
+        <div class="mini-calc" id="helper-coreslow-2017" data-target="coreslow-2017" hidden>
+          <div>
+            <label for="pos-coreslow-2017">Pozitif</label>
+            <input type="number" id="pos-coreslow-2017" data-role="pos" inputmode="numeric" step="1" min="0" placeholder="0">
+          </div>
+          <span class="mini-sep">/</span>
+          <div>
+            <label for="tot-coreslow-2017">Toplam</label>
+            <input type="number" id="tot-coreslow-2017" data-role="tot" inputmode="numeric" step="1" min="1" placeholder="12">
+          </div>
+        </div>
+        <p class="error" data-error-for="coreslow-2017"></p>
+      </div>
+
+      <button class="reset-btn" type="button" data-reset="2017">Alanları temizle</button>
+    </form>
+  </section>
+
+  <!-- ============================ BRIGANTI 2019 ============================ -->
+  <section class="panel" id="panel-2019" role="tabpanel" aria-labelledby="tab-2019" hidden>
+    <form class="card form" id="form-2019" autocomplete="off" novalidate>
+      <p class="form-note">
+        mpMR-hedefli biyopsi + eş zamanlı sistematik biyopsi ile tanı alan hastalar içindir.
+        Gandaglia G, ve ark. <em>Eur Urol</em> 2019;75:506–514.
+      </p>
+
+      <div class="field">
+        <label for="psa-2019">Ameliyat öncesi PSA <span class="unit">(ng/mL)</span></label>
+        <input type="number" id="psa-2019" name="psa" inputmode="decimal" step="0.01" min="0" max="50" placeholder="örn. 8,4">
+        <p class="error" data-error-for="psa-2019"></p>
+      </div>
+
+      <div class="field">
+        <label for="stage-2019">mpMR'de klinik evre</label>
+        <select id="stage-2019" name="stage">
+          <option value="0">Organa sınırlı</option>
+          <option value="1">Ekstrakapsüler yayılım</option>
+          <option value="2">Seminal vezikül invazyonu</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="lesion-2019">mpMR'de maksimum lezyon çapı <span class="unit">(mm)</span></label>
+        <input type="number" id="lesion-2019" name="lesion" inputmode="decimal" step="0.1" min="0" max="45" placeholder="örn. 14">
+        <p class="helper">PI-RADS skoru en yüksek olan lezyon; eşitlik varsa en büyük çaplı olan.</p>
+        <p class="error" data-error-for="lesion-2019"></p>
+      </div>
+
+      <div class="field">
+        <label for="gleason-2019">MR-hedefli biyopside Gleason skoru / ISUP derece grubu</label>
+        <select id="gleason-2019" name="gleason">
+          <option value="1">3 + 3 (ISUP Derece Grubu 1)</option>
+          <option value="2">3 + 4 (ISUP Derece Grubu 2)</option>
+          <option value="3">4 + 3 (ISUP Derece Grubu 3)</option>
+          <option value="4">4 + 4 / 3 + 5 / 5 + 3 (ISUP Derece Grubu 4)</option>
+          <option value="5">4 + 5 / 5 + 4 / 5 + 5 (ISUP Derece Grubu 5)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="cores-2019">Sistematik biyopside klinik anlamlı kanser içeren kor yüzdesi <span class="unit">(%)</span></label>
+        <input type="number" id="cores-2019" name="cores" inputmode="decimal" step="1" min="0" max="100" placeholder="örn. 30">
+        <div class="helper-row">
+          <p class="helper">Klinik anlamlı kanser = ISUP derece grubu ≥ 2.</p>
+          <button class="link-btn" type="button" data-toggle-helper="helper-cores-2019" aria-expanded="false">Kor sayısından hesapla</button>
+        </div>
+        <div class="mini-calc" id="helper-cores-2019" data-target="cores-2019" hidden>
+          <div>
+            <label for="pos-cores-2019">Pozitif</label>
+            <input type="number" id="pos-cores-2019" data-role="pos" inputmode="numeric" step="1" min="0" placeholder="0">
+          </div>
+          <span class="mini-sep">/</span>
+          <div>
+            <label for="tot-cores-2019">Toplam</label>
+            <input type="number" id="tot-cores-2019" data-role="tot" inputmode="numeric" step="1" min="1" placeholder="12">
+          </div>
+        </div>
+        <p class="error" data-error-for="cores-2019"></p>
+      </div>
+
+      <button class="reset-btn" type="button" data-reset="2019">Alanları temizle</button>
+    </form>
+  </section>
+
+  <!-- ================================ SONUÇ ================================ -->
+  <section class="result card" id="result" aria-live="polite">
+    <div class="result-empty" id="resultEmpty">
+      <p class="result-label">Tahmini LNİ riski</p>
+      <p class="result-placeholder">Sonucu görmek için tüm alanları doldurun.</p>
+      <ul class="missing" id="missingList"></ul>
+    </div>
+
+    <div class="result-body" id="resultBody" hidden>
+      <p class="result-label">Tahmini LNİ riski <span class="result-model" id="resultModel">Briganti 2017</span></p>
+      <p class="result-value"><span id="riskValue">0,0</span><span class="pct">%</span></p>
+
+      <div class="gauge" role="img" id="gauge" aria-label="Riskin %7 EAU eşiğine göre konumu">
+        <div class="gauge-bar">
+          <div class="gauge-track"><div class="gauge-fill" id="gaugeFill"></div></div>
+          <div class="gauge-threshold"><span>%7</span></div>
+        </div>
+        <div class="gauge-scale"><span>%0</span><span>%25</span><span>%50+</span></div>
+      </div>
+
+      <p class="verdict" id="verdict"></p>
+
+      <div class="result-actions">
+        <button class="ghost-btn" type="button" id="copyBtn">Özeti kopyala</button>
+      </div>
+    </div>
+  </section>
+
+  <details class="card info">
+    <summary>Model ayrıntıları ve katsayılar</summary>
+    <div class="info-body">
+      <p><strong>Briganti 2017</strong> — sistematik biyopsi verisiyle LNİ riskini tahmin eder. Yayınlanmış
+        değişkenler: PSA, klinik evre, biyopsi ISUP derece grubu, en yüksek dereceli kanser içeren kor yüzdesi ve
+        daha düşük dereceli kanser içeren kor yüzdesi.</p>
+      <p><strong>Briganti 2019</strong> — mpMR-hedefli biyopsi çağına uyarlanmıştır. Yayınlanmış değişkenler:
+        PSA, mpMR'de klinik evre, mpMR'de maksimum indeks lezyon çapı, hedefli biyopside ISUP derece grubu ve
+        sistematik biyopside klinik anlamlı kanser içeren kor yüzdesi. <em>PI-RADS skoru ve hedefli biyopsideki
+        maksimum tümör uzunluğu bu modelin bağımsız değişkenleri değildir</em>; bu nedenle forma alınmamıştır.</p>
+      <p><strong>Eşik</strong> — EAU kılavuzları, tahmini LNİ riski %7 ve üzerindeyse ePLND önerir.</p>
+      <p class="calib-note">Lojistik regresyon katsayıları <code>app.js</code> içinde tek bir yerde
+        (<code>MODELS</code> nesnesi) tanımlıdır. Orijinal yayınların katsayı tablosuna eriştiğinizde yalnızca bu
+        değerleri değiştirmeniz yeterlidir; uygulamanın geri kalanı otomatik uyum sağlar.</p>
+    </div>
+  </details>
+
+  <p class="disclaimer">
+    <strong>Yalnızca sağlık profesyonelleri içindir.</strong> Bu araç istatistiksel bir tahmin sunar; klinik
+    muhakemenin, orijinal yayınların veya kurumsal protokollerin yerine geçmez. Hiçbir hasta verisi
+    gönderilmez veya saklanmaz — tüm hesaplamalar tarayıcınızda yerel olarak yapılır.
+  </p>
+</main>
+
+<footer class="app-footer">
+  <div class="wrap">
+    <p>Çevrimdışı çalışır · Üyelik yok · Takip yok</p>
+    <p class="ver">s2.0.0</p>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
