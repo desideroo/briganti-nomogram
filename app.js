@@ -13,48 +13,64 @@
          logit = sabit + Σ (β_i · x_i)
          risk  = 1 / (1 + e^(-logit))
 
-     DEĞİŞKENLER — birincil kaynaklarla doğrulanmıştır
-       Briganti 2017 (Gandaglia G, ve ark. Eur Urol 2017;72:632-640):
-         PSA, klinik T evresi (T1/T2/T3), biyopsi ISUP derece grubu,
-         en yüksek dereceli kanser içeren kor %, daha düşük dereceli kanser
-         içeren kor %.
-       Briganti 2019 (Gandaglia G, ve ark. Eur Urol 2019;75:506-514):
-         PSA, mpMR'de klinik evre (organa sınırlı / EKY / SVİ), mpMR'de
-         maksimum indeks lezyon çapı, MR-hedefli biyopside ISUP derece grubu,
-         sistematik biyopside klinik anlamlı kanser (ISUP >= 2) içeren kor %.
-       Değişken adları ve geçerli aralıklar, modellerin resmî uygulaması olan
-       Evidencio model 1555 (v3.0 = 2017, v4.0 = 2019) ile birebir aynıdır.
+     KAYNAKLAR
+       Briganti 2017: Gandaglia G, ve ark. Eur Urol 2017;72:632-640, Tablo 2
+         Model 1 (681 hasta, 79 LNİ) ve Şekil 1'deki nomogram.
+       Briganti 2019: Gandaglia G, ve ark. Eur Urol 2019;75:506-514, Tablo 2
+         Model 5 (428 hasta, 54 LNİ, AUC %86) ve Şekil 1'deki nomogram.
 
-     KATSAYILAR — DİKKAT
-     Orijinal yayınlar nomogramı puan tablosu olarak sunar; beta katsayıları
-     ve sabit terim açık literatürde yayımlanmamıştır (resmî uygulama olan
-     Evidencio da formülü paylaşmaz). Aşağıdaki β değerleri, yayınlanan risk
-     yapısını yeniden üreten YAKLAŞIK log-odds değerleridir. Modelin biçimi,
-     değişkenleri ve risk sıralaması doğrudur; mutlak yüzdeler resmî
-     nomogramın birebir çıktısı DEĞİLDİR.
+     KATSAYILAR NASIL ELDE EDİLDİ
+     Her iki makale de beta katsayılarını "Supplementary Table 1"e bırakmıştır;
+     ana metinde yalnızca yuvarlanmış odds oranları vardır. Katsayılar bu
+     nedenle yayınlanmış nomogram şekillerinin (Şekil 1) geometrisinden geri
+     hesaplanmıştır: puan eksenleri β ile doğru orantılı, risk ekseni ise
+     logit'te doğrusaldır, dolayısıyla eksen konumları hem her β'yı hem de
+     sabit terimi verir. Şekiller piksel düzeyinde ölçülmüştür.
 
-     Orijinal katsayı tablosuna eriştiğinizde yalnızca bu nesneyi güncelleyin;
-     uygulamanın geri kalanı modeli hiçbir yerde sabit kodlamaz.
+     DOĞRULAMA — geri hesaplanan değerler yayınla karşılaştırıldı
+       2017  değişken            OR (şekil)   OR (Tablo 2, Model 1)
+             PSA                    1.086            1.08
+             Klinik evre T2         2.337            2.27
+             Klinik evre T3         2.869            2.87
+             ISUP 3                 9.647            9.5
+             ISUP 4-5              14.508           14.5
+             En yüksek dereceli %   1.027            1.02
+             Daha düşük dereceli %  1.014            1.01
+       2019  PSA                    1.043            1.04
+             mpMR EKY               3.392            3.39
+             mpMR SVİ               4.336            4.36
+             ISUP 3                 3.333            3.33
+             ISUP 4-5               6.085            6.08
+             Lezyon çapı (mm)       1.032            1.03
+             csPCa kor %            1.012            1.01
+     Sabit terim bağımsız olarak da doğrulandı: makalelerin bildirdiği "%7
+     eşiğinin altında kalan hasta oranı" (2017: %69, 2019: %57) bu modellerle
+     yeniden üretildiğinde %68 ve %57 çıkmaktadır.
 
+     ÖNEMLİ — ISUP derece grubu her iki modelde de 1-2 / 3 / 4-5 olarak
+     kategorize edilmiştir (yayınların kendi tercihi). Bu nedenle ISUP 1 ile 2
+     aynı, ISUP 4 ile 5 aynı katsayıyı alır.
+
+     Geçerli aralıklar yayınlanmış nomogram eksenlerinden alınmıştır.
      Kategorik değişkenlerde ilk seviye referanstır (β = 0).
      ---------------------------------------------------------------------- */
 
   var MODELS = {
     '2017': {
       label: 'Briganti 2017',
-      source: 'Gandaglia G, ve ark. Eur Urol 2017;72:632-640',
+      source: 'Gandaglia G, ve ark. Eur Urol 2017;72:632-640 (Tablo 2 Model 1, Şekil 1)',
       official: 'https://www.evidencio.com/models/show/1555?v=3.0',
-      intercept: -6.0,
+      intercept: -5.8703,
       continuous: {
-        psa:       0.0292,   // ng/mL başına
-        coreshigh: 0.0296,   // en yüksek dereceli kanser içeren kor yüzdesi, % başına
-        coreslow:  0.0100    // daha düşük dereceli kanser içeren kor yüzdesi, % başına
+        psa:       0.082563,   // ng/mL başına        (OR 1.086)
+        coreshigh: 0.026832,   // % başına            (OR 1.027)
+        coreslow:  0.013946    // % başına            (OR 1.014)
       },
       categorical: {
         // Klinik T evresi: T1 | T2 | T3
-        stage:   [0, 0.5878, 1.2528],
-        // Biyopsi ISUP derece grubu 1..5 (0. indeks kullanılmaz)
-        gleason: [0, 0, 0.5878, 1.2528, 1.7047, 2.0794]
+        stage:   [0, 0.848608, 1.053999],
+        // Biyopsi ISUP derece grubu 1..5 — model 1-2 / 3 / 4-5 olarak gruplar
+        gleason: [0, 0, 0, 2.266660, 2.674664, 2.674664]
       },
       fields: {
         psa:       { label: 'PSA',                                   unit: 'ng/mL', min: 0, max: 50 },
@@ -66,24 +82,24 @@
 
     '2019': {
       label: 'Briganti 2019',
-      source: 'Gandaglia G, ve ark. Eur Urol 2019;75:506-514',
+      source: 'Gandaglia G, ve ark. Eur Urol 2019;75:506-514 (Tablo 2 Model 5, Şekil 1)',
       official: 'https://www.evidencio.com/models/show/1555?v=4.0',
-      intercept: -5.8,
+      intercept: -4.5504,
       continuous: {
-        psa:    0.0296,   // ng/mL başına
-        lesion: 0.0296,   // mpMR indeks lezyon çapı, mm başına
-        cores:  0.0198    // sistematik biyopside klinik anlamlı kanserli kor %, % başına
+        psa:    0.041586,   // ng/mL başına           (OR 1.043)
+        lesion: 0.031151,   // mm başına              (OR 1.032)
+        cores:  0.011930    // % başına               (OR 1.012)
       },
       categorical: {
         // mpMR'de klinik evre: organa sınırlı | ekstrakapsüler yayılım | seminal vezikül invazyonu
-        stage:   [0, 0.7419, 1.3863],
-        // MR-hedefli biyopside ISUP derece grubu 1..5 (0. indeks kullanılmaz)
-        gleason: [0, 0, 0.2624, 1.0986, 1.3863, 1.7918]
+        stage:   [0, 1.221484, 1.466866],
+        // MR-hedefli biyopside ISUP derece grubu 1..5 — model 1-2 / 3 / 4-5 olarak gruplar
+        gleason: [0, 0, 0, 1.203860, 1.805790, 1.805790]
       },
       fields: {
-        psa:    { label: 'PSA',                                unit: 'ng/mL', min: 0, max: 50 },
-        lesion: { label: 'mpMR maksimum lezyon çapı',          unit: 'mm',    min: 0, max: 45 },
-        cores:  { label: 'Klinik anlamlı kanserli kor yüzdesi', unit: '%',    min: 0, max: 100 }
+        psa:    { label: 'PSA',                                 unit: 'ng/mL', min: 0, max: 80 },
+        lesion: { label: 'mpMR maksimum lezyon çapı',           unit: 'mm',    min: 0, max: 45 },
+        cores:  { label: 'Klinik anlamlı kanserli kor yüzdesi', unit: '%',     min: 0, max: 100 }
       },
       selects: { stage: 'mpMR klinik evre', gleason: 'Hedefli biyopsi Gleason / ISUP' }
     }

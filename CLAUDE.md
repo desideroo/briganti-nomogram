@@ -79,8 +79,11 @@ göre düzeltilmiş değişken setleriyle geliştirildi:
   değişkenleri değildir. Klinik evre mpMR'ye göre organa sınırlı / ekstrakapsüler yayılım / seminal
   vezikül invazyonu olarak kodlanır; kor yüzdesi ise "klinik anlamlı kanser (ISUP ≥ 2) içeren kor
   yüzdesi"dir.
-- Beta katsayıları açık literatürde yayımlanmamıştır; `app.js` içindeki değerler yaklaşıktır.
+- Beta katsayıları makalelerin "Supplementary Table 1"indedir ve ana metinde yoktur. `app.js` içindeki
+  değerler, yayınlanmış nomogram şekillerinin (Şekil 1) geometrisinden geri hesaplanmış; makalelerin
+  Tablo 2 odds oranlarıyla ve bildirilen "%7 eşiği altındaki hasta oranı" ile doğrulanmıştır.
   Ayrıntı için `README.md`.
+- Her iki model de ISUP derece grubunu 1-2 / 3 / 4-5 olarak kategorize eder.
 
 ---
 

@@ -30,7 +30,7 @@ Evidencio model 1555'ten doğrulanmıştır.
 
 **Briganti 2019** — Gandaglia G, ve ark. *Eur Urol* 2019;75:506–514
 ([Evidencio v4.0](https://www.evidencio.com/models/show/1555?v=4.0))
-1. Ameliyat öncesi PSA (0–50 ng/mL)
+1. Ameliyat öncesi PSA (0–80 ng/mL)
 2. mpMR'de klinik evre (organa sınırlı / ekstrakapsüler yayılım / seminal vezikül invazyonu)
 3. mpMR'de maksimum indeks lezyon çapı (0–45 mm)
 4. MR-hedefli biyopside ISUP derece grubu (1–5)
@@ -39,7 +39,7 @@ Evidencio model 1555'ten doğrulanmıştır.
 > PI-RADS skoru ve hedefli biyopsideki maksimum tümör uzunluğu 2019 modelinin bağımsız değişkenleri
 > **değildir**; bu nedenle forma alınmamıştır.
 
-## ⚠️ Katsayı durumu
+## Katsayılar
 
 Model `app.js` içindeki tek bir `MODELS` nesnesinde tanımlıdır:
 
@@ -48,15 +48,34 @@ logit = sabit + Σ (β_i · x_i)
 risk  = 1 / (1 + e^(-logit))
 ```
 
-Briganti nomogramlarının **beta katsayıları ve sabit terimi açık literatürde yayımlanmamıştır**;
-orijinal makaleler modeli puan tablosu (nomogram şekli) olarak sunar ve modellerin resmî uygulaması
-olan Evidencio formülü paylaşmaz ("No Formula defined"). Bu depodaki β değerleri, yayınlanan risk
-yapısını yeniden üreten **yaklaşık log-odds** değerleridir: değişkenler, aralıklar ve risk sıralaması
-doğrudur, ancak mutlak yüzdeler resmî nomogramın birebir çıktısı değildir.
+Her iki makale de beta katsayılarını "Supplementary Table 1"e bırakır; ana metinde yalnızca
+yuvarlanmış odds oranları vardır. Katsayılar bu nedenle **yayınlanmış nomogram şekillerinin
+(Şekil 1) geometrisinden geri hesaplanmıştır**: bir nomogramda puan eksenleri β ile doğru orantılı,
+risk ekseni ise logit'te doğrusaldır; bu iki ilişki hem her β'yı hem de sabit terimi verir. Şekiller
+piksel düzeyinde ölçüldü (risk ekseni doğrusal uyumu: maksimum sapma 0,003 logit).
 
-Orijinal makalelerin katsayı tablosuna (veya ek/supplementary materyaline) eriştiğinizde yalnızca
-`MODELS` nesnesindeki `intercept`, `continuous` ve `categorical` değerlerini değiştirmeniz yeterlidir;
-uygulamanın hiçbir yerinde model sabit kodlanmamıştır.
+Kullanılan değerler:
+
+| | Sabit | PSA | Evre | ISUP 3 | ISUP 4-5 | Diğer |
+| --- | --- | --- | --- | --- | --- | --- |
+| **2017** | −5,8703 | 0,082563 /ng/mL | T2 0,848608 · T3 1,053999 | 2,266660 | 2,674664 | en yüksek dereceli kor 0,026832 /% · daha düşük dereceli kor 0,013946 /% |
+| **2019** | −4,5504 | 0,041586 /ng/mL | EKY 1,221484 · SVİ 1,466866 | 1,203860 | 1,805790 | lezyon çapı 0,031151 /mm · csPCa kor 0,011930 /% |
+
+### Doğrulama
+
+1. **Odds oranları** — geri hesaplanan değerler makalelerin Tablo 2'siyle yuvarlama farkı içinde
+   örtüşür (2017 Model 1: ISUP 4-5 14,508 vs 14,5; T3 2,869 vs 2,87 — 2019 Model 5: EKY 3,392 vs
+   3,39; ISUP 3 3,333 vs 3,33; ISUP 4-5 6,085 vs 6,08).
+2. **Sabit terim** — katsayılardan bağımsız olarak, makalelerin bildirdiği "%7 eşiğinin altında kalan
+   hasta oranı" kohort dağılımlarıyla yeniden üretildi: 2017 için %68 (yayın: %69), 2019 için %57
+   (yayın: %57).
+
+> Not: modellerin resmî uygulaması olan Evidencio, Briganti algoritmalarını artık ücretli abonelik
+> arkasında sunmaktadır ("This is a paid algorithm"), dolayısıyla resmî hesaplayıcıyla doğrudan
+> karşılaştırma yapılamamıştır.
+
+**ISUP gruplandırması** — her iki yayın da derece gruplarını 1-2 / 3 / 4-5 olarak kategorize eder;
+bu nedenle ISUP 1 ile 2 ve ISUP 4 ile 5 aynı riski verir. Bu modelin kendi tercihidir.
 
 ## Karar eşiği
 

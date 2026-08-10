@@ -144,6 +144,17 @@ body {
 .notice strong { color: var(--warn); }
 .notice a { color: var(--warn); font-weight: 650; }
 
+/* sourced / verified variant — informative rather than cautionary */
+.notice.is-ok {
+  border-color: var(--border);
+  border-left-color: var(--brand);
+  background: var(--surface);
+  color: var(--text-soft);
+}
+.notice.is-ok strong, .notice.is-ok a { color: var(--brand); }
+
+.helper-top { margin: -2px 0 6px; }
+
 /* -------------------------------- tabs ---------------------------------- */
 
 .tabs {
@@ -442,6 +453,47 @@ input[type="number"] { -moz-appearance: textfield; }
   padding: 9px 11px;
   border-radius: 0 8px 8px 0;
 }
+
+/* coefficient verification table */
+.table-scroll {
+  overflow-x: auto;
+  margin: 0 0 12px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.coef-table {
+  width: 100%;
+  min-width: 380px;
+  border-collapse: collapse;
+  font-size: .78rem;
+  color: var(--text-soft);
+}
+.coef-table caption {
+  text-align: left;
+  font-weight: 650;
+  color: var(--text);
+  padding-bottom: 6px;
+}
+.coef-table th, .coef-table td {
+  border: 1px solid var(--border);
+  padding: 5px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+.coef-table thead th {
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 650;
+  white-space: nowrap;
+}
+.coef-table tbody td:nth-child(n+3) { text-align: right; font-variant-numeric: tabular-nums; }
+.coef-table tbody td[rowspan] {
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 650;
+  white-space: nowrap;
+}
+.tbl-sub { display: block; font-weight: 450; font-size: .92em; color: var(--text-soft); }
 code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: .95em;
