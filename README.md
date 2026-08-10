@@ -14,6 +14,8 @@ gönderilmez.
 | `manifest.json` | "Ana ekrana ekle" için PWA tanımı |
 | `sw.js` | Service worker — uygulama kabuğunu önbelleğe alır |
 | `icons/` | 192 / 512 / maskable-512 PNG simgeler |
+| `tools/reconstruct_nomogram.py` | Katsayıları yayınlanmış şekillerden yeniden türeten denetim betiği |
+| `tests/index.html` | Tarayıcıda çalışan otomatik test paketi |
 
 ## Modellerin değişkenleri
 
@@ -76,6 +78,44 @@ Kullanılan değerler:
 
 **ISUP gruplandırması** — her iki yayın da derece gruplarını 1-2 / 3 / 4-5 olarak kategorize eder;
 bu nedenle ISUP 1 ile 2 ve ISUP 4 ile 5 aynı riski verir. Bu modelin kendi tercihidir.
+
+## Denetim — katsayıları kendiniz doğrulayın
+
+Katsayıların doğruluğu kimsenin sözüne bağlı değildir; iki bağımsız yolla yeniden üretilebilir.
+
+### 1. Yeniden türetme betiği
+
+```bash
+python3 tools/reconstruct_nomogram.py
+```
+
+Harici bağımlılık yoktur. Betik, şekillerden okunan piksel konumlarından katsayıları yeniden
+hesaplar ve şunları raporlar: `app.js` ile birebir karşılaştırma, yayınların Tablo 2 odds
+oranlarıyla karşılaştırma, sabit terimin "%7 eşiği altındaki hasta oranı" ile sınanması ve ±1 piksel
+ölçüm belirsizliğinin sonuca etkisi. Bir uyuşmazlık varsa çıkış kodu 1 olur.
+
+Makalelerin PDF'lerine sahipseniz şekilleri sıfırdan yeniden ölçtürebilirsiniz:
+
+```bash
+python3 tools/reconstruct_nomogram.py --pdf-2017 <2017.pdf> --pdf-2019 <2019.pdf>
+```
+
+Bu durumda betik nomogram görüntüsünü PDF'ten çıkarır, eksen çizgilerini kendisi bulur ve depodaki
+kayıtlı ölçümlerle karşılaştırır. (Nomogram şekilleri yayıncıya ait telif korumalı içeriktir, bu
+depoda bulunmaz; kendi kopyanızı kullanın. JPEG çözmek için Pillow, `sips` veya ImageMagick'ten biri
+gerekir.)
+
+### 2. Otomatik testler
+
+```bash
+python3 -m http.server 8123
+```
+
+Sonra `http://localhost:8123/tests/` adresini açın. Test sayfası gerçek uygulamayı bir iframe içinde
+yükler ve 51 kontrol çalıştırır: katsayıların betiğin türettiği değerlerle birebir aynı olması,
+yayınlanmış odds oranlarıyla tutarlılık, elle doğrulanmış referans senaryolar, ISUP gruplandırması,
+%7 eşiği davranışı ve renk kodlaması, girdi aralıkları, kor yüzdesi hesaplayıcısı ve arayüz
+davranışı. (`file://` ile açmayın — iframe erişimi engellenir.)
 
 ## Karar eşiği
 

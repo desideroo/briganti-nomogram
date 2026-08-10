@@ -153,6 +153,14 @@ body {
 }
 .notice.is-ok strong, .notice.is-ok a { color: var(--brand); }
 
+.notice-sub {
+  margin: 8px 2px 0;
+  font-size: .72rem;
+  line-height: 1.5;
+  color: var(--text-soft);
+}
+.notice-sub a { color: var(--text-soft); }
+
 .helper-top { margin: -2px 0 6px; }
 
 /* -------------------------------- tabs ---------------------------------- */

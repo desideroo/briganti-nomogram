@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Briganti Nomogramı — testler</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         margin: 0; padding: 24px; background: #f4f6f9; color: #16202e; }
+  main { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 1.25rem; margin: 0 0 4px; }
+  p.lead { margin: 0 0 18px; color: #5b6b80; font-size: .88rem; line-height: 1.5; }
+  #summary { padding: 14px 16px; border-radius: 10px; font-weight: 700; margin-bottom: 16px; }
+  #summary.pass { background: #e6f6ed; color: #0f8a4d; border: 1px solid #a9dfc1; }
+  #summary.fail { background: #fdecec; color: #c62828; border: 1px solid #f2b5b5; }
+  #summary.run  { background: #fff7e6; color: #9a6206; border: 1px solid #f0dcb4; }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: .82rem; }
+  th, td { border: 1px solid #dde4ed; padding: 6px 9px; text-align: left; vertical-align: top; }
+  th { background: #f6f8fb; }
+  tr.group td { background: #eef2f7; font-weight: 700; }
+  td.ok { color: #0f8a4d; font-weight: 700; white-space: nowrap; }
+  td.no { color: #c62828; font-weight: 700; white-space: nowrap; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .95em; }
+  iframe { width: 420px; height: 640px; border: 1px solid #dde4ed; border-radius: 8px;
+           margin-top: 18px; background: #fff; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Briganti Nomogramı — otomatik testler</h1>
+  <p class="lead">
+    Bu sayfa gerçek uygulamayı bir iframe içinde yükler ve hem model katsayılarını hem de arayüz
+    davranışını sınar. Beklenen katsayılar, <code>tools/reconstruct_nomogram.py</code> betiğinin
+    yayınlanmış nomogram şekillerinden türettiği değerlerdir; bu iki kaynağın birbirinden bağımsız
+    olarak aynı sayıları vermesi gerekir.
+    <strong>Bir sunucu üzerinden açın</strong> (<code>python3 -m http.server 8123</code> →
+    <code>localhost:8123/tests/</code>); <code>file://</code> ile iframe erişimi tarayıcı tarafından
+    engellenir.
+  </p>
+
+  <div id="summary" class="run">Testler çalışıyor…</div>
+  <table id="results">
+    <thead><tr><th style="width:80px">Sonuç</th><th>Test</th><th style="width:34%">Ayrıntı</th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+  <iframe id="app" title="test edilen uygulama"></iframe>
+</main>
+
+<script>
+/* --------------------------------------------------------------------------
+   Beklenen değerler — tools/reconstruct_nomogram.py çıktısıyla birebir aynı.
+   Bunlardan biri değişirse test kırmızıya döner.
+   -------------------------------------------------------------------------- */
+var EXPECTED = {
+  '2017': {
+    intercept: -5.8703,
+    continuous: { psa: 0.082563, coreshigh: 0.026832, coreslow: 0.013946 },
+    stage: [0, 0.848583, 1.053999],
+    gleason: [0, 0, 0, 2.266665, 2.674664, 2.674664],
+    // Tablo 2, Model 1 — yuvarlanmış yayın değerleri (tolerans %4)
+    publishedOR: { psa: 1.08, coreshigh: 1.02, coreslow: 1.01,
+                   stage1: 2.27, stage2: 2.87, gg3: 9.5, gg4: 14.5 }
+  },
+  '2019': {
+    intercept: -4.5504,
+    continuous: { psa: 0.041586, lesion: 0.031151, cores: 0.011930 },
+    stage: [0, 1.221484, 1.466866],
+    gleason: [0, 0, 0, 1.203860, 1.805790, 1.805790],
+    // Tablo 2, Model 5
+    publishedOR: { psa: 1.04, lesion: 1.03, cores: 1.01,
+                   stage1: 3.39, stage2: 4.36, gg3: 3.33, gg4: 6.08 }
+  }
+};
+
+/* Referans senaryolar — elle doğrulanmış beklenen çıktılar (yüzde). */
+var SCENARIOS = [
+  ['2017', {psa: 6,  stage: 0, gleason: 1, coreshigh: 20, coreslow: 10},  0.90],
+  ['2017', {psa: 7,  stage: 0, gleason: 3, coreshigh: 20, coreslow: 10},  8.71],
+  ['2017', {psa: 8,  stage: 1, gleason: 3, coreshigh: 40, coreslow: 20}, 32.25],
+  ['2017', {psa: 15, stage: 2, gleason: 5, coreshigh: 60, coreslow: 20}, 72.82],
+  ['2019', {psa: 6,  stage: 0, gleason: 1, lesion: 12, cores: 10},        2.17],
+  ['2019', {psa: 8,  stage: 0, gleason: 3, lesion: 12, cores: 10},        7.44],
+  ['2019', {psa: 10, stage: 1, gleason: 4, lesion: 15, cores: 40},       45.94]
+];
+
+var tbody = document.querySelector('#results tbody');
+var pass = 0, fail = 0;
+
+function group(name) {
+  var tr = tbody.insertRow();
+  tr.className = 'group';
+  var td = tr.insertCell();
+  td.colSpan = 3;
+  td.textContent = name;
+}
+
+function check(name, ok, detail) {
+  var tr = tbody.insertRow();
+  var c0 = tr.insertCell();
+  c0.className = ok ? 'ok' : 'no';
+  c0.textContent = ok ? 'GEÇTİ' : 'KALDI';
+  tr.insertCell().textContent = name;
+  tr.insertCell().textContent = detail || '';
+  ok ? pass++ : fail++;
+}
+
+function near(a, b, tol) { return Math.abs(a - b) <= tol; }
+
+function run(win, doc) {
+  var B = win.Briganti;
+
+  /* 1 — katsayılar betiğin türettiği değerlerle birebir aynı mı */
+  ['2017', '2019'].forEach(function (key) {
+    group('Katsayılar — Briganti ' + key);
+    var M = B.MODELS[key], E = EXPECTED[key];
+
+    check('sabit terim', M.intercept === E.intercept,
+          M.intercept + ' (beklenen ' + E.intercept + ')');
+
+    Object.keys(E.continuous).forEach(function (n) {
+      check('β ' + n, M.continuous[n] === E.continuous[n],
+            M.continuous[n] + ' (beklenen ' + E.continuous[n] + ')');
+    });
+    ['stage', 'gleason'].forEach(function (arr) {
+      var got = M.categorical[arr].join(','), want = E[arr].join(',');
+      check('β dizisi ' + arr, got === want, got + ' (beklenen ' + want + ')');
+    });
+
+    /* 2 — yayınlanmış odds oranlarıyla tutarlılık (yayın yuvarlanmış: tolerans %4) */
+    var pub = E.publishedOR, pairs = [];
+    Object.keys(E.continuous).forEach(function (n) { pairs.push([n, M.continuous[n], pub[n]]); });
+    pairs.push(['klinik evre 2', M.categorical.stage[1], pub.stage1]);
+    pairs.push(['klinik evre 3', M.categorical.stage[2], pub.stage2]);
+    pairs.push(['ISUP 3', M.categorical.gleason[3], pub.gg3]);
+    pairs.push(['ISUP 4-5', M.categorical.gleason[4], pub.gg4]);
+    pairs.forEach(function (p) {
+      var or = Math.exp(p[1]);
+      check('OR ' + p[0] + ' ≈ yayın', Math.abs(or - p[2]) / p[2] <= 0.04,
+            or.toFixed(3) + ' vs yayın ' + p[2]);
+    });
+  });
+
+  /* 3 — referans senaryolar */
+  group('Referans senaryolar (risk %)');
+  SCENARIOS.forEach(function (s) {
+    var got = B.computeRisk(s[0], s[1]);
+    check(s[0] + ' ' + JSON.stringify(s[1]), near(got, s[2], 0.01),
+          got.toFixed(2) + '% (beklenen ' + s[2].toFixed(2) + '%)');
+  });
+
+  /* 4 — ISUP gruplandırması: 1≡2, 4≡5, 3 ayrı */
+  group('ISUP gruplandırması (model 1-2 / 3 / 4-5 olarak gruplar)');
+  ['2017', '2019'].forEach(function (key) {
+    var base = key === '2017'
+      ? {psa: 8, stage: 0, coreshigh: 30, coreslow: 0}
+      : {psa: 8, stage: 0, lesion: 12, cores: 30};
+    var r = [1, 2, 3, 4, 5].map(function (g) {
+      var v = JSON.parse(JSON.stringify(base)); v.gleason = g;
+      return B.computeRisk(key, v);
+    });
+    check(key + ': ISUP 1 = ISUP 2', r[0] === r[1], r[0].toFixed(3) + ' / ' + r[1].toFixed(3));
+    check(key + ': ISUP 4 = ISUP 5', r[3] === r[4], r[3].toFixed(3) + ' / ' + r[4].toFixed(3));
+    check(key + ': ISUP 3 ayrı ve artan', r[2] > r[1] && r[3] > r[2],
+          r.map(function (v) { return v.toFixed(1); }).join(' < '));
+  });
+
+  /* 5 — EAU eşiği davranışı */
+  group('EAU %7 eşiği');
+  check('eşik sabiti 7', B.EAU_THRESHOLD === 7, String(B.EAU_THRESHOLD));
+
+  var setVal = function (id, v) {
+    var el = doc.getElementById(id);
+    el.value = v;
+    el.dispatchEvent(new win.Event('input', {bubbles: true}));
+  };
+  var setSel = function (id, v) {
+    var el = doc.getElementById(id);
+    el.value = v;
+    el.dispatchEvent(new win.Event('change', {bubbles: true}));
+  };
+  var result = doc.getElementById('result');
+
+  doc.getElementById('tab-2017').click();
+  setVal('psa-2017', 6); setSel('stage-2017', '0'); setSel('gleason-2017', '1');
+  setVal('coreshigh-2017', 20); setVal('coreslow-2017', 10);
+  check('eşik altı → yeşil', result.classList.contains('is-safe'),
+        doc.getElementById('riskValue').textContent + '% · ' + result.className);
+  check('eşik altı mesajı', /güvenle atlanabilir/.test(doc.getElementById('verdict').textContent),
+        doc.getElementById('verdict').textContent);
+
+  setSel('gleason-2017', '3');
+  check('eşik üstü → kırmızı', result.classList.contains('is-risk'),
+        doc.getElementById('riskValue').textContent + '% · ' + result.className);
+  check('eşik üstü mesajı', /ePLND\) önerilir/.test(doc.getElementById('verdict').textContent),
+        doc.getElementById('verdict').textContent);
+
+  /* 6 — aralık doğrulaması */
+  group('Girdi aralıkları (nomogram eksenlerinden)');
+  var errText = function (id) {
+    return doc.querySelector('[data-error-for="' + id + '"]').textContent;
+  };
+  setVal('psa-2017', 60);
+  check('2017 PSA > 50 reddedilir', errText('psa-2017') !== '' &&
+        doc.getElementById('resultBody').hidden, errText('psa-2017'));
+  setVal('psa-2017', 8);
+  setVal('coreslow-2017', 95);
+  check('2017 düşük dereceli kor > 90 reddedilir', errText('coreslow-2017') !== '',
+        errText('coreslow-2017'));
+  setVal('coreslow-2017', 10);
+  check('2017 geçerli değerde hata temizlenir', errText('coreslow-2017') === '', '—');
+
+  doc.getElementById('tab-2019').click();
+  setVal('psa-2019', 75); setVal('lesion-2019', 12); setVal('cores-2019', 10);
+  check('2019 PSA 75 kabul edilir (aralık 0-80)', errText('psa-2019') === '', '—');
+  setVal('lesion-2019', 50);
+  check('2019 lezyon > 45 mm reddedilir', errText('lesion-2019') !== '', errText('lesion-2019'));
+  setVal('lesion-2019', 12);
+
+  /* 7 — kor yüzdesi mini hesaplayıcısı */
+  group('Kor yüzdesi mini hesaplayıcısı');
+  setVal('pos-cores-2019', 4); setVal('tot-cores-2019', 12);
+  check('4 / 12 → 33.3', doc.getElementById('cores-2019').value === '33.3',
+        doc.getElementById('cores-2019').value);
+
+  /* 8 — sekme değişince sonuç sıfırlanır */
+  group('Arayüz davranışı');
+  doc.getElementById('tab-2017').click();
+  doc.querySelector('[data-reset="2017"]').click();
+  check('temizlemeden sonra sonuç gizlenir', doc.getElementById('resultBody').hidden,
+        'resultBody.hidden = ' + doc.getElementById('resultBody').hidden);
+
+  var s = document.getElementById('summary');
+  s.className = fail ? 'fail' : 'pass';
+  s.textContent = fail
+    ? fail + ' test KALDI, ' + pass + ' test geçti'
+    : 'Tüm testler geçti (' + pass + '/' + pass + ')';
+}
+
+var frame = document.getElementById('app');
+
+/* Service worker önbelleği testleri eski bir sürümle çalıştırabilir. Önce
+   önbelleği boşaltıp uygulamayı ağdan yüklüyoruz; service worker kayıtlı
+   kalır ve önbelleği kendisi yeniden doldurur. */
+(function loadApp() {
+  var start = function () { frame.src = '../index.html'; };
+  if (!window.caches) { return start(); }
+  caches.keys()
+    .then(function (keys) { return Promise.all(keys.map(function (k) { return caches.delete(k); })); })
+    .then(start, start);
+})();
+
+frame.addEventListener('load', function () {
+  try {
+    var win = frame.contentWindow;
+    if (!win.Briganti) { throw new Error('app.js yüklenmedi (window.Briganti yok)'); }
+    run(win, frame.contentDocument);
+  } catch (e) {
+    var s = document.getElementById('summary');
+    s.className = 'fail';
+    s.textContent = 'Testler çalıştırılamadı: ' + e.message +
+      (String(e).indexOf('cross-origin') > -1 || location.protocol === 'file:'
+        ? ' — sayfayı file:// yerine bir sunucu üzerinden açın.' : '');
+  }
+});
+</script>
+</body>
+</html>

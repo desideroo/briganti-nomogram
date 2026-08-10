@@ -68,9 +68,9 @@
       },
       categorical: {
         // Klinik T evresi: T1 | T2 | T3
-        stage:   [0, 0.848608, 1.053999],
+        stage:   [0, 0.848583, 1.053999],
         // Biyopsi ISUP derece grubu 1..5 — model 1-2 / 3 / 4-5 olarak gruplar
-        gleason: [0, 0, 0, 2.266660, 2.674664, 2.674664]
+        gleason: [0, 0, 0, 2.266665, 2.674664, 2.674664]
       },
       fields: {
         psa:       { label: 'PSA',                                   unit: 'ng/mL', min: 0, max: 50 },

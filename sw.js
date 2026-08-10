@@ -7,7 +7,7 @@
    dosyalarda kalır.
    ========================================================================== */
 
-var CACHE_VERSION = 'briganti-v3.0.0';
+var CACHE_VERSION = 'briganti-v3.1.0';
 
 var PRECACHE = [
   './',

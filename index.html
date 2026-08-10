@@ -32,13 +32,23 @@
 <main class="wrap">
 
   <div class="notice is-ok" role="note">
-    <strong>Katsayı kaynağı:</strong> Modeller, orijinal yayınların nomogram şekillerinden (Gandaglia,
-    <em>Eur Urol</em> 2017 ve 2019, Şekil 1) geri hesaplanmış katsayılarla çalışır ve makalelerin
-    Tablo 2'de bildirdiği odds oranlarını yuvarlama farkı içinde yeniden üretir. Karşılaştırma tablosu
-    için aşağıdaki <em>Model ayrıntıları</em> bölümüne bakın. Resmî hesaplayıcılar:
-    <a href="https://www.evidencio.com/models/show/1555?v=3.0" target="_blank" rel="noopener">Evidencio 2017</a> ·
-    <a href="https://www.evidencio.com/models/show/1555?v=4.0" target="_blank" rel="noopener">Evidencio 2019</a>
+    <strong>Katsayılar ve doğrulama:</strong> Model katsayıları, orijinal yayınların nomogram
+    şekillerinden (Gandaglia, <em>Eur Urol</em> 2017;72:632–640 ve 2019;75:506–514, Şekil 1) geri
+    hesaplandı; makalelerin Tablo 2'deki odds oranlarıyla ve bildirdikleri "%7 eşiği altında kalan
+    hasta oranı" ile doğrulandı. Ölçüm belirsizliği %7 eşiği civarında <strong>0,1 puanın
+    altındadır</strong>. Hesabı kendiniz denetleyebilirsiniz:
+    <a href="https://github.com/desideroo/briganti-nomogram/blob/main/tools/reconstruct_nomogram.py" target="_blank" rel="noopener">denetim betiği</a> ·
+    <a href="tests/" target="_blank" rel="noopener">otomatik testler</a> ·
+    <a href="https://github.com/desideroo/briganti-nomogram" target="_blank" rel="noopener">kaynak kod</a>.
+    Ayrıntılar için aşağıdaki <em>Model ayrıntıları</em> bölümü.
   </div>
+
+  <p class="notice-sub">
+    Bu site CE işaretli bir tıbbi cihaz değildir. Modellerin resmî (CE işaretli) uygulaması
+    Evidencio'dur; Briganti algoritmaları orada ücretli aboneliğe tabidir
+    (<a href="https://www.evidencio.com/models/show/1555?v=3.0" target="_blank" rel="noopener">2017</a>,
+    <a href="https://www.evidencio.com/models/show/1555?v=4.0" target="_blank" rel="noopener">2019</a>).
+  </p>
 
   <div class="tabs" role="tablist" aria-label="Nomogram modeli">
     <button class="tab is-active" role="tab" id="tab-2017" aria-controls="panel-2017" aria-selected="true" data-model="2017" type="button">
@@ -285,8 +295,10 @@
         tercihidir, hesaplama hatası değildir.</p>
 
       <p class="calib-note">Lojistik regresyon katsayıları <code>app.js</code> içinde tek bir yerde
-        (<code>MODELS</code> nesnesi) tanımlıdır; kaynak, türetme ve doğrulama ayrıntıları oradaki yorumda
-        yazılıdır.</p>
+        (<code>MODELS</code> nesnesi) tanımlıdır. Denetim için
+        <code>tools/reconstruct_nomogram.py</code> katsayıları şekillerden yeniden türetip
+        <code>app.js</code> ile karşılaştırır; <a href="tests/">tests/</a> sayfası ise uygulamayı
+        gerçek arayüz üzerinden sınar.</p>
     </div>
   </details>
 
@@ -300,7 +312,7 @@
 <footer class="app-footer">
   <div class="wrap">
     <p>Çevrimdışı çalışır · Üyelik yok · Takip yok</p>
-    <p class="ver">s3.0.0</p>
+    <p class="ver">s3.1.0</p>
   </div>
 </footer>
 
