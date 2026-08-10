@@ -63,6 +63,10 @@ uygulamanın hiçbir yerinde model sabit kodlanmamıştır.
 EAU kılavuzlarına göre tahmini LNİ riski **%7 ve üzerindeyse** ePLND önerilir. Eşik, `app.js`
 içindeki `EAU_THRESHOLD` sabitidir.
 
+Yüksek riskli hastalıkla sınırlı kohortlarda nomogramların ayırt ediciliği düşüktür: 150 yüksek riskli
+olguluk tek merkezli seride (LNİ %26) önerilen eşikte duyarlılık 0,97 (2017) ve 0,96 (2019), özgüllük
+0,14 ve 0,18, AUC 0,56 ve 0,57 bulunmuştur — Di Pierro GB, ve ark. *Cancers* 2023;15:1683.
+
 ## Yerelde çalıştırma
 
 Service worker yalnızca `http(s)` üzerinden kaydolur, bu yüzden `file://` yerine sunucu kullanın:
