@@ -269,21 +269,55 @@
     }
   }
 
-  /** Seçilen cT evresi model kapsamı dışındaysa uyarı gösterir. */
-  function updateStageNote(key) {
-    var el = $('stagenote-' + key);
-    if (!el) { return; }
-    var message = (MODELS[key].stageNotes || {})[$('stage-' + key).value] || '';
-    el.textContent = message;
-    el.classList.toggle('is-shown', message !== '');
+  /* --------------------------- cT evre rehberi ---------------------------
+     Rehberdeki tanımlar HTML'de tek bir yerde durur; seçili evrenin özet
+     satırı da oradan okunur, böylece metin iki yerde tekrarlanmaz.
+     ---------------------------------------------------------------------- */
+
+  /** Seçili dalı vurgular, özet satırını ve kapsam uyarısını günceller. */
+  function updateStageUi(key) {
+    var selected = $('stage-' + key).value;
+    var panel = $('panel-' + key);
+
+    Array.prototype.forEach.call(panel.querySelectorAll('.ct-rung'), function (rung) {
+      var on = rung.dataset.stage === selected;
+      rung.classList.toggle('is-active', on);
+      Array.prototype.forEach.call(rung.querySelectorAll('.ct-node, .ct-sub'), function (btn) {
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    });
+
+    var node = panel.querySelector('.ct-node[data-stage="' + selected + '"]');
+    var summary = $('stagecur-' + key);
+    if (node && summary) {
+      summary.querySelector('[data-role="def"]').textContent =
+        node.querySelector('.ct-text').textContent;
+    }
+
+    var note = $('stagenote-' + key);
+    if (note) {
+      var message = (MODELS[key].stageNotes || {})[selected] || '';
+      note.textContent = message;
+      note.classList.toggle('is-shown', message !== '');
+    }
   }
+
+  Array.prototype.forEach.call(document.querySelectorAll('.ct-ladder'), function (ladder) {
+    ladder.addEventListener('click', function (e) {
+      var btn = e.target.closest('.ct-node, .ct-sub');
+      if (!btn) { return; }
+      var select = $('stage-' + ladder.dataset.model);
+      select.value = btn.dataset.stage;
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+  });
 
   function calculate() {
     var key = activeModel;
     var state = readModel(key);
     var errorNames = Object.keys(state.errors);
 
-    updateStageNote(key);
+    updateStageUi(key);
 
     Object.keys(MODELS[key].fields).forEach(function (name) {
       setFieldError(key, name, state.errors[name] || '');
@@ -481,6 +515,9 @@
 
   /* -------------------------------- başlat -------------------------------- */
 
+  // Her iki panelin evre rehberi başlangıçta doğru durumda olmalı; calculate()
+  // yalnızca etkin modeli günceller.
+  ['2017', '2019'].forEach(updateStageUi);
   calculate();
 
   // Konsoldan hızlı doğrulama / ileride birim testleri için.

@@ -178,51 +178,207 @@ body {
 }
 .stage-note.is-shown { display: block; }
 
-/* cT evre tanımları */
-.stage-legend { margin-top: 8px; }
-.stage-legend summary {
-  cursor: pointer;
-  font-size: .76rem;
-  font-weight: 620;
-  color: var(--brand);
-  list-style: none;
-  padding: 3px 0;
-}
-.stage-legend summary::-webkit-details-marker { display: none; }
-.stage-legend summary::after { content: " ▾"; }
-.stage-legend[open] summary::after { content: " ▴"; }
+/* ------------------------- cT evreleme merdiveni -------------------------
+   Evreleme sıralı ve hiyerarşiktir: alt evreler üst evreden dallanır. Bu
+   bölüm bir sözlük değil, o merdivenin kendisidir — satırlar seçilebilir,
+   sağdaki etiket modelin hangi kategoriyi kullandığını gösterir.
+   ------------------------------------------------------------------------ */
 
-.stage-legend dl {
-  margin: 6px 0 0;
-  padding: 10px 12px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: .76rem;
+/* seçili evrenin her zaman görünen tek satırlık karşılığı */
+.stage-current {
+  margin: 7px 0 0;
+  padding-left: 11px;
+  border-left: 2px solid var(--border);
+  font-size: .78rem;
   line-height: 1.45;
-}
-.stage-legend dt {
-  font-weight: 700;
-  color: var(--text);
-  margin-top: 7px;
-}
-.stage-legend dt:first-child { margin-top: 0; }
-.stage-legend dd {
-  margin: 1px 0 0;
   color: var(--text-soft);
 }
-.stage-legend .pick {
-  font-weight: 450;
-  font-size: .9em;
+
+/* evre rozeti — patoloji raporu etiketi gibi, sabit genişlikte hizalanır */
+.ct-chip {
+  flex: none;
+  display: inline-block;
+  width: 52px;              /* sabit genişlik: tanım sütunu tam hizalanır */
+  padding: 2px 4px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: .74rem;
+  font-weight: 700;
+  letter-spacing: .01em;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.ct-chip.is-sub {
+  border-color: transparent;
+  background: none;
+  color: var(--text-soft);
+  font-weight: 600;
+}
+
+/* modelin kullandığı kategori */
+.ct-badge {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--brand-soft);
   color: var(--brand);
+  font-size: .66rem;
+  font-weight: 700;
+  letter-spacing: .02em;
   white-space: nowrap;
 }
-.legend-note {
-  margin: 8px 0 0;
-  font-size: .74rem;
-  line-height: 1.45;
+.ct-badge.is-inline { display: inline-block; vertical-align: 1px; }
+
+/* açılır rehber */
+.ct-guide { margin-top: 10px; }
+.ct-guide summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 12px;
+  cursor: pointer;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-2);
+}
+.ct-guide summary::-webkit-details-marker { display: none; }
+.ct-guide-title { font-size: .78rem; font-weight: 650; color: var(--brand); }
+.ct-guide-sub {
+  font-size: .7rem;
   color: var(--text-soft);
+  margin-left: auto;
+  margin-right: 2px;
+}
+.ct-guide summary::after {
+  content: "";
+  flex: none;
+  width: 7px; height: 7px;
+  border-right: 2px solid var(--text-soft);
+  border-bottom: 2px solid var(--text-soft);
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform .15s;
+}
+.ct-guide[open] summary::after { transform: rotate(-135deg) translate(-2px, -2px); }
+.ct-guide summary:focus-visible { outline: 3px solid #ffb300; outline-offset: 2px; }
+
+/* merdiven gövdesi */
+.ct-ladder { position: relative; margin-top: 8px; }
+
+/* kesintisiz dikey omurga: evrelemenin sıralı olduğunu yapısal olarak taşır */
+.ct-ladder::before {
+  content: "";
+  position: absolute;
+  left: 4px; top: 8px; bottom: 8px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--border);
+}
+
+.ct-rung {
+  position: relative;
+  padding-left: 15px;
+  border-radius: 9px;
+  transition: background .15s;
+}
+/* seçili dal omurganın kendi bölümünü aydınlatır */
+.ct-rung.is-active::before {
+  content: "";
+  position: absolute;
+  left: 4px; top: 0; bottom: 0;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--brand);
+}
+
+.ct-node, .ct-sub {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 9px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-soft);
+}
+.ct-node { min-height: 42px; }
+.ct-sub { min-height: 34px; }
+
+/* omurgadaki düğüm noktası — yalnızca seçilebilir ana evrelerde */
+.ct-node::before {
+  content: "";
+  position: absolute;
+  left: -15px; top: 50%;
+  width: 10px; height: 10px;
+  margin-top: -5px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface);
+}
+/* alt evreden omurgaya kısa bağlantı */
+.ct-sub::before {
+  content: "";
+  position: absolute;
+  left: -9px; top: 50%;
+  width: 7px; height: 2px;
+  margin-top: -1px;
+  background: var(--border);
+}
+
+.ct-text { font-size: .77rem; line-height: 1.4; }
+.ct-node .ct-text { color: var(--text); }
+
+.ct-node:hover, .ct-sub:hover { background: var(--surface-2); }
+.ct-node:focus-visible, .ct-sub:focus-visible { outline: 3px solid #ffb300; outline-offset: -1px; }
+
+/* seçili dal: ana evre ve tüm alt evreleri birlikte vurgulanır */
+.ct-rung.is-active { background: var(--brand-soft); }
+.ct-rung.is-active .ct-node::before { border-color: var(--brand); background: var(--brand); }
+.ct-rung.is-active .ct-sub::before { background: var(--brand); opacity: .5; }
+.ct-rung.is-active .ct-chip {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #fff;
+}
+/* koyu temada marka rengi açık; çip yazısı koyu olmalı */
+@media (prefers-color-scheme: dark) {
+  .ct-rung.is-active .ct-chip { color: var(--bg); }
+}
+.ct-rung.is-active .ct-chip.is-sub {
+  border-color: transparent;
+  background: none;
+  color: var(--brand);
+}
+.ct-rung.is-active .ct-text { color: var(--text); }
+.ct-rung.is-active .ct-badge { background: var(--surface); }
+
+.ct-guide-foot {
+  margin: 10px 0 0;
   padding: 0 2px;
+  font-size: .72rem;
+  line-height: 1.5;
+  color: var(--text-soft);
+}
+
+/* Dar ekranda uzun kategori etiketi tanım metnini sıkıştırıyor. Etiketi alt
+   satıra almak satırları uzatıp düğüm hizasını bozduğu için, bunun yerine
+   etiketin kendisi iki satıra sarılır; sütun hizası korunur. */
+@media (max-width: 420px) {
+  .ct-badge {
+    white-space: normal;
+    max-width: 66px;
+    text-align: center;
+    line-height: 1.25;
+  }
 }
 
 /* -------------------------------- tabs ---------------------------------- */

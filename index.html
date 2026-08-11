@@ -86,34 +86,82 @@
           <option value="cT3b">cT3b</option>
           <option value="cT4">cT4</option>
         </select>
+        <p class="stage-current" id="stagecur-2017">
+          <span class="stage-current-def" data-role="def"></span>
+        </p>
         <p class="stage-note" id="stagenote-2017"></p>
-        <details class="stage-legend">
-          <summary>cT evreleri — tanımlar</summary>
-          <dl>
-            <dt>cT1</dt>
-            <dd>Tümör klinik olarak palpe edilemiyor / görüntülemede belirgin değil.</dd>
-            <dt>cT1c <span class="pick">→ cT1 seçin</span></dt>
-            <dd>PSA yüksekliği nedeniyle yapılan biyopside kanser saptanması; en sık kategori.</dd>
-            <dt>cT2</dt>
-            <dd>Tümör prostat içinde sınırlı.</dd>
-            <dt>cT2a <span class="pick">→ cT2 seçin</span></dt>
-            <dd>Bir lobun yarısından azı.</dd>
-            <dt>cT2b <span class="pick">→ cT2 seçin</span></dt>
-            <dd>Bir lobun yarısından fazlası.</dd>
-            <dt>cT2c <span class="pick">→ cT2 seçin</span></dt>
-            <dd>Her iki lob.</dd>
-            <dt>cT3a</dt>
-            <dd>Prostat dışına ekstrakapsüler uzanım (EPE) ± mesane boynu tutulumu.</dd>
-            <dt>cT3b</dt>
-            <dd>Seminal vezikül invazyonu.</dd>
-            <dt>cT4</dt>
-            <dd>Komşu yapılara invazyon (ör. mesane, rektum, pelvik duvar).</dd>
-          </dl>
-          <p class="legend-note">
-            Klinik T evresi, prostat kanserinin muayene ve görüntüleme ile ameliyat öncesi belirlenen
-            lokal evresidir; patolojik evre değildir. Örneğin biyopside Gleason 4+3=7, PSA 12 ve
-            mpMR'de PI-RADS 5, fakat EPE yok deniyorsa otomatik olarak cT3 denmez — klinik T evresi
-            cT2 olabilir.
+
+        <details class="ct-guide">
+          <summary>
+            <span class="ct-guide-title">cT evre rehberi</span>
+            <span class="ct-guide-sub">dokunarak seçin</span>
+          </summary>
+          <div class="ct-ladder" data-model="2017">
+            <div class="ct-rung" data-stage="cT1">
+              <button type="button" class="ct-node" data-stage="cT1" data-badge="T1">
+                <span class="ct-chip">cT1</span>
+                <span class="ct-text">Tümör klinik olarak palpe edilemiyor / görüntülemede belirgin değil.</span>
+                <span class="ct-badge">T1</span>
+              </button>
+              <button type="button" class="ct-sub" data-stage="cT1">
+                <span class="ct-chip is-sub">cT1c</span>
+                <span class="ct-text">PSA yüksekliği nedeniyle yapılan biyopside kanser saptanması; en sık kategori.</span>
+              </button>
+            </div>
+
+            <div class="ct-rung" data-stage="cT2">
+              <button type="button" class="ct-node" data-stage="cT2" data-badge="T2">
+                <span class="ct-chip">cT2</span>
+                <span class="ct-text">Tümör prostat içinde sınırlı.</span>
+                <span class="ct-badge">T2</span>
+              </button>
+              <button type="button" class="ct-sub" data-stage="cT2">
+                <span class="ct-chip is-sub">cT2a</span>
+                <span class="ct-text">Bir lobun yarısından azı.</span>
+              </button>
+              <button type="button" class="ct-sub" data-stage="cT2">
+                <span class="ct-chip is-sub">cT2b</span>
+                <span class="ct-text">Bir lobun yarısından fazlası.</span>
+              </button>
+              <button type="button" class="ct-sub" data-stage="cT2">
+                <span class="ct-chip is-sub">cT2c</span>
+                <span class="ct-text">Her iki lob.</span>
+              </button>
+            </div>
+
+            <div class="ct-rung" data-stage="cT3a">
+              <button type="button" class="ct-node" data-stage="cT3a" data-badge="T3">
+                <span class="ct-chip">cT3a</span>
+                <span class="ct-text">Prostat dışına ekstrakapsüler uzanım (EPE) ± mesane boynu tutulumu.</span>
+                <span class="ct-badge">T3</span>
+              </button>
+            </div>
+
+            <div class="ct-rung" data-stage="cT3b">
+              <button type="button" class="ct-node" data-stage="cT3b" data-badge="T3">
+                <span class="ct-chip">cT3b</span>
+                <span class="ct-text">Seminal vezikül invazyonu.</span>
+                <span class="ct-badge">T3</span>
+              </button>
+            </div>
+
+            <div class="ct-rung" data-stage="cT4">
+              <button type="button" class="ct-node" data-stage="cT4" data-badge="T3">
+                <span class="ct-chip">cT4</span>
+                <span class="ct-text">Komşu yapılara invazyon (ör. mesane, rektum, pelvik duvar).</span>
+                <span class="ct-badge">T3</span>
+              </button>
+            </div>
+          </div>
+
+          <p class="ct-guide-foot">
+            <span class="ct-badge is-inline">T1</span> etiketi modelin kullandığı kategoriyi gösterir;
+            aynı etiketi taşıyan evreler aynı katsayıyı alır.
+          </p>
+          <p class="ct-guide-foot">
+            Klinik T evresi, muayene ve görüntüleme ile ameliyat öncesi belirlenen lokal evredir;
+            patolojik evre değildir. Biyopside Gleason 4+3=7, PSA 12 ve mpMR'de PI-RADS 5 olsa bile
+            EPE yoksa otomatik olarak cT3 denmez — evre cT2 olabilir.
           </p>
         </details>
       </div>
@@ -197,39 +245,87 @@
           yayılım / seminal vezikül invazyonu olarak kodlar: cT1 ve cT2 organa sınırlı, cT3a EKY,
           cT3b ve cT4 SVİ katsayısını alır.</p>
         <select id="stage-2019" name="stage">
-          <option value="cT1">cT1 (organa sınırlı)</option>
-          <option value="cT2">cT2 (organa sınırlı)</option>
-          <option value="cT3a">cT3a (ekstrakapsüler yayılım)</option>
-          <option value="cT3b">cT3b (seminal vezikül invazyonu)</option>
+          <option value="cT1">cT1</option>
+          <option value="cT2">cT2</option>
+          <option value="cT3a">cT3a</option>
+          <option value="cT3b">cT3b</option>
           <option value="cT4">cT4</option>
         </select>
+        <p class="stage-current" id="stagecur-2019">
+          <span class="stage-current-def" data-role="def"></span>
+        </p>
         <p class="stage-note" id="stagenote-2019"></p>
-        <details class="stage-legend">
-          <summary>cT evreleri — tanımlar</summary>
-          <dl>
-            <dt>cT1</dt>
-            <dd>Tümör klinik olarak ele gelmiyor / görüntülemede belirgin değil.</dd>
-            <dt>cT1c <span class="pick">→ cT1 seçin</span></dt>
-            <dd>Tümör klinik olarak ele gelmiyor; PSA yüksekliği vb. nedeniyle biyopsiyle saptanıyor.</dd>
-            <dt>cT2</dt>
-            <dd>Tümör prostatla sınırlı.</dd>
-            <dt>cT2a <span class="pick">→ cT2 seçin</span></dt>
-            <dd>Bir lobun ≤ %50'si.</dd>
-            <dt>cT2b <span class="pick">→ cT2 seçin</span></dt>
-            <dd>Bir lobun > %50'si.</dd>
-            <dt>cT2c <span class="pick">→ cT2 seçin</span></dt>
-            <dd>Her iki lob.</dd>
-            <dt>cT3a</dt>
-            <dd>Prostat dışına ekstrakapsüler uzanım.</dd>
-            <dt>cT3b</dt>
-            <dd>Seminal vezikül invazyonu.</dd>
-            <dt>cT4</dt>
-            <dd>Mesane boynu, rektum, pelvik duvar gibi komşu yapılara invazyon.</dd>
-          </dl>
-          <p class="legend-note">
-            Klinik evre, biyopsi ve görüntüleme/klinik muayene ile ameliyat öncesi belirlenen T
-            evresidir; patolojik evre değildir. mpMR'de ekstrakapsüler uzanım (EPE) görülüyorsa cT3a
-            kabul edilebilir; ancak yalnızca PI-RADS 5 olması tek başına cT3 anlamına gelmez.
+
+        <details class="ct-guide">
+          <summary>
+            <span class="ct-guide-title">cT evre rehberi</span>
+            <span class="ct-guide-sub">dokunarak seçin</span>
+          </summary>
+          <div class="ct-ladder" data-model="2019">
+            <div class="ct-rung" data-stage="cT1">
+              <button type="button" class="ct-node" data-stage="cT1" data-badge="Organa sınırlı">
+                <span class="ct-chip">cT1</span>
+                <span class="ct-text">Tümör klinik olarak ele gelmiyor / görüntülemede belirgin değil.</span>
+                <span class="ct-badge">Organa sınırlı</span>
+              </button>
+              <button type="button" class="ct-sub" data-stage="cT1">
+                <span class="ct-chip is-sub">cT1c</span>
+                <span class="ct-text">Tümör ele gelmiyor; PSA yüksekliği vb. nedeniyle biyopsiyle saptanıyor.</span>
+              </button>
+            </div>
+
+            <div class="ct-rung" data-stage="cT2">
+              <button type="button" class="ct-node" data-stage="cT2" data-badge="Organa sınırlı">
+                <span class="ct-chip">cT2</span>
+                <span class="ct-text">Tümör prostatla sınırlı.</span>
+                <span class="ct-badge">Organa sınırlı</span>
+              </button>
+              <button type="button" class="ct-sub" data-stage="cT2">
+                <span class="ct-chip is-sub">cT2a</span>
+                <span class="ct-text">Bir lobun ≤ %50'si.</span>
+              </button>
+              <button type="button" class="ct-sub" data-stage="cT2">
+                <span class="ct-chip is-sub">cT2b</span>
+                <span class="ct-text">Bir lobun &gt; %50'si.</span>
+              </button>
+              <button type="button" class="ct-sub" data-stage="cT2">
+                <span class="ct-chip is-sub">cT2c</span>
+                <span class="ct-text">Her iki lob.</span>
+              </button>
+            </div>
+
+            <div class="ct-rung" data-stage="cT3a">
+              <button type="button" class="ct-node" data-stage="cT3a" data-badge="EKY">
+                <span class="ct-chip">cT3a</span>
+                <span class="ct-text">Prostat dışına ekstrakapsüler uzanım.</span>
+                <span class="ct-badge" title="Ekstrakapsüler yayılım">EKY</span>
+              </button>
+            </div>
+
+            <div class="ct-rung" data-stage="cT3b">
+              <button type="button" class="ct-node" data-stage="cT3b" data-badge="SVİ">
+                <span class="ct-chip">cT3b</span>
+                <span class="ct-text">Seminal vezikül invazyonu.</span>
+                <span class="ct-badge" title="Seminal vezikül invazyonu">SVİ</span>
+              </button>
+            </div>
+
+            <div class="ct-rung" data-stage="cT4">
+              <button type="button" class="ct-node" data-stage="cT4" data-badge="SVİ">
+                <span class="ct-chip">cT4</span>
+                <span class="ct-text">Mesane boynu, rektum, pelvik duvar gibi komşu yapılara invazyon.</span>
+                <span class="ct-badge" title="Seminal vezikül invazyonu">SVİ</span>
+              </button>
+            </div>
+          </div>
+
+          <p class="ct-guide-foot">
+            <span class="ct-badge is-inline">EKY</span> etiketi modelin mpMR'ye göre kullandığı
+            kategoriyi gösterir; aynı etiketi taşıyan evreler aynı katsayıyı alır.
+          </p>
+          <p class="ct-guide-foot">
+            mpMR'de ekstrakapsüler uzanım görülüyorsa cT3a kabul edilebilir; yalnızca PI-RADS 5
+            olması tek başına cT3 anlamına gelmez.
           </p>
         </details>
       </div>
@@ -380,7 +476,7 @@
 <footer class="app-footer">
   <div class="wrap">
     <p>Çevrimdışı çalışır · Üyelik yok · Takip yok</p>
-    <p class="ver">s3.2.0</p>
+    <p class="ver">s3.3.0</p>
   </div>
 </footer>
 

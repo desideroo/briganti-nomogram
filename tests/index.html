@@ -235,6 +235,42 @@ function run(win, doc) {
   check('eşik üstü mesajı', /ePLND\) önerilir/.test(doc.getElementById('verdict').textContent),
         doc.getElementById('verdict').textContent);
 
+  /* 5a — evre rehberi etkileşimi */
+  group('cT evre rehberi (dokunarak seçim)');
+  ['2017', '2019'].forEach(function (key) {
+    doc.getElementById('tab-' + key).click();
+    var panel = doc.getElementById('panel-' + key);
+    var select = doc.getElementById('stage-' + key);
+
+    check(key + ': her evre için bir basamak var',
+          panel.querySelectorAll('.ct-rung').length === 5,
+          panel.querySelectorAll('.ct-rung').length + ' basamak');
+
+    // ana satıra dokunmak o evreyi seçer
+    panel.querySelector('.ct-node[data-stage="cT3b"]').click();
+    check(key + ': ana satır seçimi yapar', select.value === 'cT3b', select.value);
+    check(key + ': seçili dal vurgulanır',
+          panel.querySelector('.ct-rung.is-active').dataset.stage === 'cT3b',
+          panel.querySelector('.ct-rung.is-active').dataset.stage);
+
+    // alt evre satırı üst evreyi seçer
+    panel.querySelector('.ct-sub[data-stage="cT2"]').click();
+    check(key + ': alt evre satırı üst evreyi seçer', select.value === 'cT2', select.value);
+
+    // seçicinin altındaki tanım satırı seçili evreyle eşleşir
+    var expected = panel.querySelector('.ct-node[data-stage="cT2"] .ct-text').textContent.trim();
+    check(key + ': tanım satırı seçili evreyle eşleşir',
+          doc.getElementById('stagecur-' + key).textContent.trim() === expected,
+          expected.slice(0, 40) + '…');
+
+    // seçiciyi değiştirmek rehberi de günceller
+    setSel('stage-' + key, 'cT1');
+    check(key + ': seçici değişince rehber güncellenir',
+          panel.querySelector('.ct-rung.is-active').dataset.stage === 'cT1',
+          panel.querySelector('.ct-rung.is-active').dataset.stage);
+  });
+  doc.getElementById('tab-2017').click();
+
   /* 5b — cT4 uyarısı arayüzde görünüyor mu */
   group('cT4 ekstrapolasyon uyarısı (arayüz)');
   var note17 = doc.getElementById('stagenote-2017');
