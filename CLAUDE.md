@@ -87,6 +87,23 @@ göre düzeltilmiş değişken setleriyle geliştirildi:
 
 ---
 
+---
+
+## 🎨 Tasarım Kararı (2026-08-11) — renk yalnızca anlam taşır
+
+Arayüz, klinik bir karar aracı kimliğiyle yeniden tasarlandı. Korunması gereken ilkeler:
+
+- **Doygun renk yalnızca karara ayrılmıştır.** Arayüzün tamamı mürekkep–kâğıt nötrleriyle çizilir;
+  yeşil ve kırmızı sadece eşik altı / eşik üstü sonucunu işaretler. Başlık çubuğunu, sekmeleri veya
+  kartları markalı bir renge boyamak sonucun sinyalini zayıflatır — yapmayın.
+- **Sayısal her değer tabular monospace** (`--mono`) ile dizilir: PSA, yüzdeler, cT kodları, risk.
+- **`text-transform: uppercase` kullanılmaz.** Tarayıcı Türkçe "i" harfini "I" yapar ve
+  "TAHMINI LNI" gibi yanlış yazım üretir.
+- **Karar ölçeği %0–20'de biter** (`GAUGE_MAX`), %0–50'de değil. Böylece %7 kapısı çubuğun %35'ine
+  düşer. CSS'teki `.gauge-gate` konumu ile `GAUGE_MAX` arasındaki tutarlılık test paketinde sınanır.
+- Geniş ekranda sonuç kartı sağ sütunda **yapışkandır**; telefonda ekranın altındaki **mini şerit**
+  aynı işi görür.
+
 ## Technical Stack & Output Deliverables
 - Single Page Web App using pure HTML5, CSS3, and JavaScript (Vanilla) or Tailwind CSS.
 - Production-ready files: `index.html`, `styles.css`, `app.js`, `manifest.json`, `sw.js`.
