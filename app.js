@@ -72,6 +72,13 @@
         // Biyopsi ISUP derece grubu 1..5 — model 1-2 / 3 / 4-5 olarak gruplar
         gleason: [0, 0, 0, 2.266665, 2.674664, 2.674664]
       },
+      // Arayüzdeki cT seçeneği -> stage katsayı dizisindeki indeks.
+      // Model yalnızca T1/T2/T3 ayrımı yapar; cT3a, cT3b ve cT4 aynı katsayıyı alır.
+      stageOptions: { cT1: 0, cT2: 1, cT3a: 2, cT3b: 2, cT4: 2 },
+      stageNotes: {
+        cT4: 'Modelin geliştirme kohortunda cT4 hasta yoktur (evre dağılımı T1/T2/T3). ' +
+             'En yüksek evre katsayısı (T3) kullanılır; sonuç bu hastalarda ekstrapolasyondur.'
+      },
       fields: {
         psa:       { label: 'PSA',                                   unit: 'ng/mL', min: 0, max: 50 },
         coreshigh: { label: 'En yüksek dereceli kanser içeren kor',  unit: '%',     min: 0, max: 100 },
@@ -96,12 +103,20 @@
         // MR-hedefli biyopside ISUP derece grubu 1..5 — model 1-2 / 3 / 4-5 olarak gruplar
         gleason: [0, 0, 0, 1.203860, 1.805790, 1.805790]
       },
+      // Arayüzdeki cT seçeneği -> stage katsayı dizisindeki indeks.
+      // Modelin evre değişkeni mpMR bulgusudur: cT1/cT2 = organa sınırlı, cT3a = EKY,
+      // cT3b = SVİ. cT4 için modelde ayrı kategori yoktur, en yüksek kategori kullanılır.
+      stageOptions: { cT1: 0, cT2: 0, cT3a: 1, cT3b: 2, cT4: 2 },
+      stageNotes: {
+        cT4: 'Modelde cT4 için ayrı kategori yoktur; en yüksek evre katsayısı (seminal vezikül ' +
+             'invazyonu) kullanılır. Sonuç bu hastalarda ekstrapolasyondur.'
+      },
       fields: {
         psa:    { label: 'PSA',                                 unit: 'ng/mL', min: 0, max: 80 },
         lesion: { label: 'mpMR maksimum lezyon çapı',           unit: 'mm',    min: 0, max: 45 },
         cores:  { label: 'Klinik anlamlı kanserli kor yüzdesi', unit: '%',     min: 0, max: 100 }
       },
-      selects: { stage: 'mpMR klinik evre', gleason: 'Hedefli biyopsi Gleason / ISUP' }
+      selects: { stage: 'Klinik T evresi (mpMR)', gleason: 'Hedefli biyopsi Gleason / ISUP' }
     }
   };
 
@@ -159,7 +174,8 @@
       values[name] = num;
     });
 
-    values.stage = parseInt($('stage-' + key).value, 10);
+    // cT seçeneği modelin evre kategorisine eşlenir (birden fazla cT aynı katsayıyı paylaşır).
+    values.stage = model.stageOptions[$('stage-' + key).value];
     values.gleason = parseInt($('gleason-' + key).value, 10);
 
     return { values: values, errors: errors, missing: missing };
@@ -253,10 +269,21 @@
     }
   }
 
+  /** Seçilen cT evresi model kapsamı dışındaysa uyarı gösterir. */
+  function updateStageNote(key) {
+    var el = $('stagenote-' + key);
+    if (!el) { return; }
+    var message = (MODELS[key].stageNotes || {})[$('stage-' + key).value] || '';
+    el.textContent = message;
+    el.classList.toggle('is-shown', message !== '');
+  }
+
   function calculate() {
     var key = activeModel;
     var state = readModel(key);
     var errorNames = Object.keys(state.errors);
+
+    updateStageNote(key);
 
     Object.keys(MODELS[key].fields).forEach(function (name) {
       setFieldError(key, name, state.errors[name] || '');

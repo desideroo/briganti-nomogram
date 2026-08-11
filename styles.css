@@ -163,6 +163,68 @@ body {
 
 .helper-top { margin: -2px 0 6px; }
 
+/* seçilen cT evresi model kapsamı dışındaysa çıkan uyarı */
+.stage-note {
+  display: none;
+  margin: 7px 0 0;
+  padding: 8px 10px;
+  font-size: .74rem;
+  line-height: 1.45;
+  color: var(--warn-text);
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  border-left: 3px solid var(--warn);
+  border-radius: 0 8px 8px 0;
+}
+.stage-note.is-shown { display: block; }
+
+/* cT evre tanımları */
+.stage-legend { margin-top: 8px; }
+.stage-legend summary {
+  cursor: pointer;
+  font-size: .76rem;
+  font-weight: 620;
+  color: var(--brand);
+  list-style: none;
+  padding: 3px 0;
+}
+.stage-legend summary::-webkit-details-marker { display: none; }
+.stage-legend summary::after { content: " ▾"; }
+.stage-legend[open] summary::after { content: " ▴"; }
+
+.stage-legend dl {
+  margin: 6px 0 0;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: .76rem;
+  line-height: 1.45;
+}
+.stage-legend dt {
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 7px;
+}
+.stage-legend dt:first-child { margin-top: 0; }
+.stage-legend dd {
+  margin: 1px 0 0;
+  color: var(--text-soft);
+}
+.stage-legend .pick {
+  font-weight: 450;
+  font-size: .9em;
+  color: var(--brand);
+  white-space: nowrap;
+}
+.legend-note {
+  margin: 8px 0 0;
+  font-size: .74rem;
+  line-height: 1.45;
+  color: var(--text-soft);
+  padding: 0 2px;
+}
+
 /* -------------------------------- tabs ---------------------------------- */
 
 .tabs {

@@ -25,7 +25,7 @@ Evidencio model 1555'ten doğrulanmıştır.
 **Briganti 2017** — Gandaglia G, ve ark. *Eur Urol* 2017;72:632–640
 ([Evidencio v3.0](https://www.evidencio.com/models/show/1555?v=3.0))
 1. Ameliyat öncesi PSA (0–50 ng/mL)
-2. Klinik T evresi (T1 / T2 / T3)
+2. Klinik T evresi — model T1 / T2 / T3 olarak kodlar (arayüzde cT1–cT4 seçilir)
 3. Biyopsi ISUP derece grubu (1–5)
 4. En yüksek dereceli kanser içeren kor yüzdesi (0–100 %)
 5. Daha düşük dereceli kanser içeren kor yüzdesi (0–90 %)
@@ -33,7 +33,8 @@ Evidencio model 1555'ten doğrulanmıştır.
 **Briganti 2019** — Gandaglia G, ve ark. *Eur Urol* 2019;75:506–514
 ([Evidencio v4.0](https://www.evidencio.com/models/show/1555?v=4.0))
 1. Ameliyat öncesi PSA (0–80 ng/mL)
-2. mpMR'de klinik evre (organa sınırlı / ekstrakapsüler yayılım / seminal vezikül invazyonu)
+2. mpMR'de klinik evre — model organa sınırlı / ekstrakapsüler yayılım / seminal vezikül
+   invazyonu olarak kodlar (arayüzde cT1–cT4 seçilir)
 3. mpMR'de maksimum indeks lezyon çapı (0–45 mm)
 4. MR-hedefli biyopside ISUP derece grubu (1–5)
 5. Sistematik biyopside klinik anlamlı kanser (ISUP ≥ 2) içeren kor yüzdesi (0–100 %)
@@ -78,6 +79,21 @@ Kullanılan değerler:
 
 **ISUP gruplandırması** — her iki yayın da derece gruplarını 1-2 / 3 / 4-5 olarak kategorize eder;
 bu nedenle ISUP 1 ile 2 ve ISUP 4 ile 5 aynı riski verir. Bu modelin kendi tercihidir.
+
+**cT evresi eşlemesi** — arayüzde klinik evre cT1, cT2, cT3a, cT3b, cT4 olarak seçilir (alt evrelerin
+tanımları formdaki açılır listede). Modellerin evre değişkeni ise yalnızca üç kategoriden oluşur,
+dolayısıyla seçenekler şu şekilde eşlenir (`app.js` → `stageOptions`):
+
+| Arayüz | 2017 modeli | 2019 modeli |
+| --- | --- | --- |
+| cT1 | T1 | organa sınırlı |
+| cT2 | T2 | organa sınırlı |
+| cT3a | T3 | ekstrakapsüler yayılım |
+| cT3b | T3 | seminal vezikül invazyonu |
+| cT4 | T3 | seminal vezikül invazyonu |
+
+Her iki modelin geliştirme kohortunda cT4 hasta yoktur; bu seçenekte en yüksek evre katsayısı
+kullanılır ve arayüzde ekstrapolasyon uyarısı gösterilir.
 
 ## Denetim — katsayıları kendiniz doğrulayın
 

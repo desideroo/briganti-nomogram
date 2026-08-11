@@ -165,6 +165,46 @@ function run(win, doc) {
           r.map(function (v) { return v.toFixed(1); }).join(' < '));
   });
 
+  /* 4b — cT evresi eşlemesi: arayüzdeki 5 seçenek, modelin 3 kategorisi */
+  group('cT evresi eşlemesi (arayüz cT1-cT4, model 3 kategori)');
+  var EXPECTED_STAGE_MAP = {
+    '2017': { cT1: 0, cT2: 1, cT3a: 2, cT3b: 2, cT4: 2 },
+    '2019': { cT1: 0, cT2: 0, cT3a: 1, cT3b: 2, cT4: 2 }
+  };
+  ['2017', '2019'].forEach(function (key) {
+    var got = B.MODELS[key].stageOptions, want = EXPECTED_STAGE_MAP[key];
+    check(key + ': eşleme tablosu', JSON.stringify(got) === JSON.stringify(want),
+          JSON.stringify(got));
+    // açılır listedeki seçenekler eşleme tablosuyla birebir örtüşmeli
+    var opts = [].map.call(doc.getElementById('stage-' + key).options,
+                           function (o) { return o.value; });
+    check(key + ': liste cT1, cT2, cT3a, cT3b, cT4',
+          opts.join(',') === 'cT1,cT2,cT3a,cT3b,cT4', opts.join(','));
+    check(key + ': her seçeneğin katsayısı tanımlı',
+          opts.every(function (v) { return typeof got[v] === 'number'; }), '—');
+    // cT4 ekstrapolasyon uyarısı bulunmalı
+    check(key + ': cT4 için ekstrapolasyon uyarısı var',
+          !!(B.MODELS[key].stageNotes && B.MODELS[key].stageNotes.cT4),
+          (B.MODELS[key].stageNotes || {}).cT4 ? 'var' : 'YOK');
+  });
+  // 2017: cT3a = cT3b = cT4 ; 2019: cT1 = cT2 ve cT3a < cT3b
+  var s17 = ['cT1', 'cT2', 'cT3a', 'cT3b', 'cT4'].map(function (v) {
+    return B.computeRisk('2017', {psa: 8, stage: B.MODELS['2017'].stageOptions[v],
+                                  gleason: 3, coreshigh: 30, coreslow: 0});
+  });
+  check('2017: cT3a = cT3b = cT4', s17[2] === s17[3] && s17[3] === s17[4],
+        s17.map(function (v) { return v.toFixed(2); }).join(' / '));
+  check('2017: cT1 < cT2 < cT3a', s17[0] < s17[1] && s17[1] < s17[2],
+        s17.slice(0, 3).map(function (v) { return v.toFixed(2); }).join(' < '));
+  var s19 = ['cT1', 'cT2', 'cT3a', 'cT3b', 'cT4'].map(function (v) {
+    return B.computeRisk('2019', {psa: 8, stage: B.MODELS['2019'].stageOptions[v],
+                                  gleason: 3, lesion: 12, cores: 30});
+  });
+  check('2019: cT1 = cT2 (ikisi de organa sınırlı)', s19[0] === s19[1],
+        s19[0].toFixed(2) + ' / ' + s19[1].toFixed(2));
+  check('2019: cT3a < cT3b = cT4', s19[2] < s19[3] && s19[3] === s19[4],
+        s19.slice(2).map(function (v) { return v.toFixed(2); }).join(' / '));
+
   /* 5 — EAU eşiği davranışı */
   group('EAU %7 eşiği');
   check('eşik sabiti 7', B.EAU_THRESHOLD === 7, String(B.EAU_THRESHOLD));
@@ -182,7 +222,7 @@ function run(win, doc) {
   var result = doc.getElementById('result');
 
   doc.getElementById('tab-2017').click();
-  setVal('psa-2017', 6); setSel('stage-2017', '0'); setSel('gleason-2017', '1');
+  setVal('psa-2017', 6); setSel('stage-2017', 'cT1'); setSel('gleason-2017', '1');
   setVal('coreshigh-2017', 20); setVal('coreslow-2017', 10);
   check('eşik altı → yeşil', result.classList.contains('is-safe'),
         doc.getElementById('riskValue').textContent + '% · ' + result.className);
@@ -194,6 +234,16 @@ function run(win, doc) {
         doc.getElementById('riskValue').textContent + '% · ' + result.className);
   check('eşik üstü mesajı', /ePLND\) önerilir/.test(doc.getElementById('verdict').textContent),
         doc.getElementById('verdict').textContent);
+
+  /* 5b — cT4 uyarısı arayüzde görünüyor mu */
+  group('cT4 ekstrapolasyon uyarısı (arayüz)');
+  var note17 = doc.getElementById('stagenote-2017');
+  setSel('stage-2017', 'cT4');
+  check('cT4 seçilince uyarı görünür', note17.classList.contains('is-shown'),
+        note17.textContent.slice(0, 60) + '…');
+  setSel('stage-2017', 'cT3a');
+  check('cT3a seçilince uyarı kaybolur', !note17.classList.contains('is-shown'), '—');
+  setSel('stage-2017', 'cT1');
 
   /* 6 — aralık doğrulaması */
   group('Girdi aralıkları (nomogram eksenlerinden)');
