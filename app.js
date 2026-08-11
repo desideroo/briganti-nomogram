@@ -121,12 +121,20 @@
   };
 
   var EAU_THRESHOLD = 7;              // %  — EAU kılavuzlarının ePLND eşiği
-  var GAUGE_MAX = 50;                 // %  — gösterge çubuğunun tam genişliği
+
+  // Karar ölçeğinin üst sınırı. Klinik kararın tamamı %0-20 aralığında verilir;
+  // %20 üstü zaten tartışmasız ePLND'dir. Ölçeği burada bitirmek %7 kapısını
+  // genişliğin %35'ine taşır (styles.css: .gauge-gate) ve eşik civarındaki
+  // birkaç puanlık farkı gözle ayırt edilebilir kılar.
+  var GAUGE_MAX = 20;
 
   var MESSAGES = {
     safe: 'Risk %7 eşiğinin altında. ePLND güvenle atlanabilir.',
     risk: 'Risk %7 veya üzerinde. Genişletilmiş pelvik lenf nodu diseksiyonu (ePLND) önerilir.'
   };
+
+  // Yapışkan mini şerit için kısaltılmış karar.
+  var SHORT = { safe: 'ePLND atlanabilir', risk: 'ePLND önerilir' };
 
   /* ------------------------------- yardımcılar ---------------------------- */
 
@@ -209,8 +217,55 @@
 
   var lastResult = null;
 
+  /* --------------------------- yapışkan mini şerit -------------------------
+     Telefonda form ekrandan uzundur; hekim bir alanı değiştirirken sonucun
+     görünür kalması gerekir. Şerit yalnızca dar ekranlarda görünür (CSS) ve
+     tam sonuç kartı ekrana girdiğinde kendini gizler.
+     ---------------------------------------------------------------------- */
+
+  var minibarEl = $('minibar');
+  var miniValueEl = $('miniValue');
+  var miniNoteEl = $('miniNote');
+
+  function updateMinibar(state) {
+    if (!minibarEl) { return; }
+
+    if (!state) {
+      minibarEl.hidden = true;
+      document.body.classList.remove('has-minibar');
+      return;
+    }
+    miniValueEl.textContent = state.shown;
+    miniNoteEl.textContent = state.isRisk ? SHORT.risk : SHORT.safe;
+    minibarEl.classList.toggle('is-risk', state.isRisk);
+    minibarEl.classList.toggle('is-safe', !state.isRisk);
+    minibarEl.hidden = false;
+    document.body.classList.add('has-minibar');
+    syncMinibarTuck();
+  }
+
+  /* Tam sonuç kartı ekranda görünürken şerit kendini gizler — aynı sayıyı iki
+     kez göstermenin anlamı yok. IntersectionObserver yerine doğrudan ölçüm:
+     davranışı her tarayıcıda aynı ve konsoldan sınanabilir. */
+  function syncMinibarTuck() {
+    if (!minibarEl || minibarEl.hidden) { return; }
+    var box = resultEl.getBoundingClientRect();
+    // Şeridin kendi yüksekliği (~74px) kadarlık alt şerit görünür sayılmaz.
+    var visible = Math.min(box.bottom, window.innerHeight - 74) - Math.max(box.top, 0);
+    minibarEl.classList.toggle('is-tucked', visible > box.height * 0.35);
+  }
+
+  if (minibarEl) {
+    minibarEl.addEventListener('click', function () {
+      resultEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+    window.addEventListener('scroll', syncMinibarTuck, { passive: true });
+    window.addEventListener('resize', syncMinibarTuck);
+  }
+
   function showPending(missing, hasErrors) {
     lastResult = null;
+    updateMinibar(null);
     resultEl.classList.remove('is-safe', 'is-risk');
     bodyEl.hidden = true;
     emptyEl.hidden = false;
@@ -248,6 +303,7 @@
       (isRisk ? 'üzerinde veya eşiğinde' : 'altında') + '.');
 
     lastResult = { key: key, risk: risk, shown: shown, isRisk: isRisk };
+    updateMinibar(lastResult);
   }
 
   /* -------------------------------- hesap --------------------------------- */
@@ -521,5 +577,10 @@
   calculate();
 
   // Konsoldan hızlı doğrulama / ileride birim testleri için.
-  window.Briganti = { MODELS: MODELS, computeRisk: computeRisk, EAU_THRESHOLD: EAU_THRESHOLD };
+  window.Briganti = {
+    MODELS: MODELS,
+    computeRisk: computeRisk,
+    EAU_THRESHOLD: EAU_THRESHOLD,
+    GAUGE_MAX: GAUGE_MAX
+  };
 })();

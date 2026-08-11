@@ -309,7 +309,58 @@ function run(win, doc) {
   check('4 / 12 → 33.3', doc.getElementById('cores-2019').value === '33.3',
         doc.getElementById('cores-2019').value);
 
-  /* 8 — sekme değişince sonuç sıfırlanır */
+  /* 8 — karar ölçeği: CSS'teki %7 kapısı JS'teki ölçek üst sınırına bağlıdır.
+     Biri diğerinden habersiz değişirse gösterge sessizce yanlış yer gösterir. */
+  group('Karar ölçeği (%7 kapısı)');
+  doc.getElementById('tab-2017').click();
+  setVal('psa-2017', 6); setSel('stage-2017', 'cT1'); setSel('gleason-2017', '1');
+  setVal('coreshigh-2017', 20); setVal('coreslow-2017', 10);
+
+  var trackBox = doc.querySelector('#gauge .gauge-track').getBoundingClientRect();
+  var gateBox = doc.querySelector('#gauge .gauge-gate').getBoundingClientRect();
+  var gateFrac = (gateBox.left - trackBox.left) / trackBox.width;
+  var wantFrac = B.EAU_THRESHOLD / B.GAUGE_MAX;
+  check('CSS kapı konumu = eşik / ölçek üst sınırı', near(gateFrac, wantFrac, 0.01),
+        'CSS %' + (gateFrac * 100).toFixed(1) + ' vs JS %' + (wantFrac * 100).toFixed(1));
+
+  var refRisk = B.computeRisk('2017', {psa: 6, stage: 0, gleason: 1, coreshigh: 20, coreslow: 10});
+  check('dolgu genişliği riskle orantılı',
+        near(parseFloat(doc.getElementById('gaugeFill').style.width),
+             Math.min(100, refRisk / B.GAUGE_MAX * 100), 0.01),
+        doc.getElementById('gaugeFill').style.width);
+
+  // ölçek üst sınırını aşan risk çubuğu tam doldurmalı (taşmamalı)
+  setVal('psa-2017', 20); setSel('stage-2017', 'cT3a'); setSel('gleason-2017', '5');
+  setVal('coreshigh-2017', 80);
+  check('ölçek üstü risk çubuğu tam doldurur',
+        parseFloat(doc.getElementById('gaugeFill').style.width) === 100 &&
+        parseFloat(doc.getElementById('riskValue').textContent.replace(',', '.')) > B.GAUGE_MAX,
+        doc.getElementById('riskValue').textContent + '% → ' + doc.getElementById('gaugeFill').style.width);
+  setVal('psa-2017', 6); setSel('stage-2017', 'cT1'); setSel('gleason-2017', '1');
+  setVal('coreshigh-2017', 20);
+
+  /* 8b — yapışkan mini şerit sonucu birebir yansıtmalı */
+  group('Yapışkan mini şerit');
+  var mb = doc.getElementById('minibar');
+  check('sonuç varken şerit görünür', mb.hidden === false, 'hidden = ' + mb.hidden);
+  check('şerit değeri sonuçla aynı',
+        doc.getElementById('miniValue').textContent === doc.getElementById('riskValue').textContent,
+        doc.getElementById('miniValue').textContent + ' / ' + doc.getElementById('riskValue').textContent);
+  check('eşik altında yeşil ve "atlanabilir"',
+        mb.classList.contains('is-safe') && /atlanabilir/.test(doc.getElementById('miniNote').textContent),
+        mb.className + ' · ' + doc.getElementById('miniNote').textContent);
+
+  setSel('gleason-2017', '5');
+  check('eşik üstünde kırmızı ve "önerilir"',
+        mb.classList.contains('is-risk') && /önerilir/.test(doc.getElementById('miniNote').textContent),
+        mb.className + ' · ' + doc.getElementById('miniNote').textContent);
+
+  setVal('psa-2017', '');
+  check('alan eksikken şerit gizlenir', mb.hidden === true, 'hidden = ' + mb.hidden);
+  check('şerit gizliyken gövde dolgusu kalkar',
+        !doc.body.classList.contains('has-minibar'), doc.body.className || '(sınıf yok)');
+
+  /* 9 — sekme değişince sonuç sıfırlanır */
   group('Arayüz davranışı');
   doc.getElementById('tab-2017').click();
   doc.querySelector('[data-reset="2017"]').click();

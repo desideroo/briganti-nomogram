@@ -4,9 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Prostat kanserinde lenf nodu invazyonu (LNİ) riski için ücretsiz Briganti 2017 ve 2019 nomogram hesaplayıcısı. Üyelik yok, çevrimdışı çalışır.">
-<meta name="theme-color" content="#0f4c81">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0f15" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Briganti LNİ">
 <title>Briganti Nomogramı — LNİ Risk Hesaplayıcı (2017 &amp; 2019)</title>
 <link rel="manifest" href="manifest.json">
@@ -16,469 +17,545 @@
 </head>
 <body>
 
-<header class="app-header">
-  <div class="wrap header-inner">
-    <div class="brand">
-      <span class="brand-mark" aria-hidden="true">B</span>
-      <div>
-        <h1>Briganti Nomogramı</h1>
-        <p class="tagline">Prostat kanserinde lenf nodu invazyonu (LNİ) riski</p>
-      </div>
+<a class="skip-link" href="#form-2017">Forma atla</a>
+
+<header class="topbar">
+  <div class="shell topbar-in">
+    <span class="mark" aria-hidden="true">
+      <svg viewBox="0 0 28 28" focusable="false">
+        <g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <path d="M3 9h22M3 20h22"/>
+          <path d="M8 9V6M14 9V6M20 9V6" opacity=".5"/>
+          <path d="M8 20v3M14 20v3M20 20v3" opacity=".5"/>
+        </g>
+        <circle cx="18" cy="9" r="3.1" fill="currentColor"/>
+        <circle cx="10" cy="20" r="3.1" fill="currentColor"/>
+      </svg>
+    </span>
+    <div class="titles">
+      <h1>Briganti Nomogramı</h1>
+      <p>Prostat kanserinde lenf nodu invazyonu riski</p>
     </div>
-    <button id="installBtn" class="install-btn" type="button" hidden>Uygulamayı yükle</button>
+    <button id="installBtn" class="btn-quiet" type="button" hidden>Yükle</button>
   </div>
 </header>
 
-<main class="wrap">
+<main class="shell">
 
-  <div class="notice is-ok" role="note">
-    <strong>Katsayılar ve doğrulama:</strong> Model katsayıları, orijinal yayınların nomogram
-    şekillerinden (Gandaglia, <em>Eur Urol</em> 2017;72:632–640 ve 2019;75:506–514, Şekil 1) geri
-    hesaplandı; makalelerin Tablo 2'deki odds oranlarıyla ve bildirdikleri "%7 eşiği altında kalan
-    hasta oranı" ile doğrulandı. Ölçüm belirsizliği %7 eşiği civarında <strong>0,1 puanın
-    altındadır</strong>. Hesabı kendiniz denetleyebilirsiniz:
-    <a href="https://github.com/desideroo/briganti-nomogram/blob/main/tools/reconstruct_nomogram.py" target="_blank" rel="noopener">denetim betiği</a> ·
-    <a href="tests/" target="_blank" rel="noopener">otomatik testler</a> ·
-    <a href="https://github.com/desideroo/briganti-nomogram" target="_blank" rel="noopener">kaynak kod</a>.
-    Ayrıntılar için aşağıdaki <em>Model ayrıntıları</em> bölümü.
+  <!-- ============================= KAYNAK ŞERİDİ ============================= -->
+  <div class="provenance" role="note">
+    <p class="prov-line">
+      <span class="prov-tag">Kaynak ve denetim</span>
+      Katsayılar yayınlanmış nomogram şekillerinden geri hesaplandı; makalelerin odds oranlarıyla
+      ve bildirilen eşik altı hasta oranıyla doğrulandı. Eşik civarındaki belirsizlik
+      <strong>0,1 puanın altında</strong>. Yöntemin tamamı aşağıda, <em>Model ayrıntıları</em>
+      bölümünde.
+    </p>
+    <p class="prov-links">
+      <a href="https://github.com/desideroo/briganti-nomogram/blob/main/tools/reconstruct_nomogram.py" target="_blank" rel="noopener">Denetim betiği</a>
+      <a href="tests/" target="_blank" rel="noopener">Otomatik testler</a>
+      <a href="https://github.com/desideroo/briganti-nomogram" target="_blank" rel="noopener">Kaynak kod</a>
+      <span class="prov-note">CE işaretli tıbbi cihaz değildir; resmî uygulama
+        <a href="https://www.evidencio.com/models/show/1555?v=3.0" target="_blank" rel="noopener">Evidencio</a>
+        üzerinde ücretlidir.</span>
+    </p>
   </div>
 
-  <p class="notice-sub">
-    Bu site CE işaretli bir tıbbi cihaz değildir. Modellerin resmî (CE işaretli) uygulaması
-    Evidencio'dur; Briganti algoritmaları orada ücretli aboneliğe tabidir
-    (<a href="https://www.evidencio.com/models/show/1555?v=3.0" target="_blank" rel="noopener">2017</a>,
-    <a href="https://www.evidencio.com/models/show/1555?v=4.0" target="_blank" rel="noopener">2019</a>).
-  </p>
+  <div class="layout">
+    <div class="col-main">
 
-  <div class="tabs" role="tablist" aria-label="Nomogram modeli">
-    <button class="tab is-active" role="tab" id="tab-2017" aria-controls="panel-2017" aria-selected="true" data-model="2017" type="button">
-      <span class="tab-title">Briganti 2017</span>
-      <span class="tab-sub">Sistematik biyopsi</span>
-    </button>
-    <button class="tab" role="tab" id="tab-2019" aria-controls="panel-2019" aria-selected="false" tabindex="-1" data-model="2019" type="button">
-      <span class="tab-title">Briganti 2019</span>
-      <span class="tab-sub">MR-hedefli biyopsi</span>
-    </button>
+      <div class="segmented" role="tablist" aria-label="Nomogram modeli">
+        <button class="tab is-active" role="tab" id="tab-2017" aria-controls="panel-2017" aria-selected="true" data-model="2017" type="button">
+          <span class="tab-title">Briganti 2017</span>
+          <span class="tab-sub">Sistematik biyopsi</span>
+        </button>
+        <button class="tab" role="tab" id="tab-2019" aria-controls="panel-2019" aria-selected="false" tabindex="-1" data-model="2019" type="button">
+          <span class="tab-title">Briganti 2019</span>
+          <span class="tab-sub">MR-hedefli biyopsi</span>
+        </button>
+      </div>
+
+      <!-- =========================== BRIGANTI 2017 =========================== -->
+      <section class="panel" id="panel-2017" role="tabpanel" aria-labelledby="tab-2017">
+        <form class="card form" id="form-2017" autocomplete="off" novalidate>
+          <p class="form-note">
+            Sistematik (standart) biyopsi ile tanı alan hastalar içindir.
+            <cite>Gandaglia G, ve ark. Eur Urol 2017;72:632–640.</cite>
+          </p>
+
+          <div class="group">
+            <h2 class="group-label">Klinik veriler</h2>
+
+            <div class="field">
+              <label for="psa-2017">Ameliyat öncesi PSA<span class="sr-only"> (ng/mL)</span></label>
+              <div class="control">
+                <input type="number" id="psa-2017" name="psa" inputmode="decimal" step="0.01" min="0" max="50" placeholder="8,4">
+                <span class="suffix" aria-hidden="true">ng/mL</span>
+              </div>
+              <p class="error" data-error-for="psa-2017"></p>
+            </div>
+
+            <div class="field">
+              <label for="stage-2017">Klinik T evresi</label>
+              <div class="control">
+                <select id="stage-2017" name="stage">
+                  <option value="cT1">cT1</option>
+                  <option value="cT2">cT2</option>
+                  <option value="cT3a">cT3a</option>
+                  <option value="cT3b">cT3b</option>
+                  <option value="cT4">cT4</option>
+                </select>
+              </div>
+              <p class="stage-current" id="stagecur-2017"><span data-role="def"></span></p>
+              <p class="note">Model klinik evreyi T1 / T2 / T3 olarak gruplar; cT3a, cT3b ve cT4
+                aynı katsayıyı alır.</p>
+              <p class="stage-note" id="stagenote-2017"></p>
+
+              <details class="ct-guide">
+                <summary>
+                  <span class="ct-guide-title">cT evre rehberi</span>
+                  <span class="ct-guide-sub">dokunarak seçin</span>
+                </summary>
+                <div class="ct-ladder" data-model="2017">
+                  <div class="ct-rung" data-stage="cT1">
+                    <button type="button" class="ct-node" data-stage="cT1">
+                      <span class="ct-chip">cT1</span>
+                      <span class="ct-text">Tümör klinik olarak palpe edilemiyor / görüntülemede belirgin değil.</span>
+                      <span class="ct-badge">T1</span>
+                    </button>
+                    <button type="button" class="ct-sub" data-stage="cT1">
+                      <span class="ct-chip is-sub">cT1c</span>
+                      <span class="ct-text">PSA yüksekliği nedeniyle yapılan biyopside kanser saptanması; en sık kategori.</span>
+                    </button>
+                  </div>
+
+                  <div class="ct-rung" data-stage="cT2">
+                    <button type="button" class="ct-node" data-stage="cT2">
+                      <span class="ct-chip">cT2</span>
+                      <span class="ct-text">Tümör prostat içinde sınırlı.</span>
+                      <span class="ct-badge">T2</span>
+                    </button>
+                    <button type="button" class="ct-sub" data-stage="cT2">
+                      <span class="ct-chip is-sub">cT2a</span>
+                      <span class="ct-text">Bir lobun yarısından azı.</span>
+                    </button>
+                    <button type="button" class="ct-sub" data-stage="cT2">
+                      <span class="ct-chip is-sub">cT2b</span>
+                      <span class="ct-text">Bir lobun yarısından fazlası.</span>
+                    </button>
+                    <button type="button" class="ct-sub" data-stage="cT2">
+                      <span class="ct-chip is-sub">cT2c</span>
+                      <span class="ct-text">Her iki lob.</span>
+                    </button>
+                  </div>
+
+                  <div class="ct-rung" data-stage="cT3a">
+                    <button type="button" class="ct-node" data-stage="cT3a">
+                      <span class="ct-chip">cT3a</span>
+                      <span class="ct-text">Prostat dışına ekstrakapsüler uzanım (EPE) ± mesane boynu tutulumu.</span>
+                      <span class="ct-badge">T3</span>
+                    </button>
+                  </div>
+
+                  <div class="ct-rung" data-stage="cT3b">
+                    <button type="button" class="ct-node" data-stage="cT3b">
+                      <span class="ct-chip">cT3b</span>
+                      <span class="ct-text">Seminal vezikül invazyonu.</span>
+                      <span class="ct-badge">T3</span>
+                    </button>
+                  </div>
+
+                  <div class="ct-rung" data-stage="cT4">
+                    <button type="button" class="ct-node" data-stage="cT4">
+                      <span class="ct-chip">cT4</span>
+                      <span class="ct-text">Komşu yapılara invazyon (ör. mesane, rektum, pelvik duvar).</span>
+                      <span class="ct-badge">T3</span>
+                    </button>
+                  </div>
+                </div>
+
+                <p class="ct-guide-foot">
+                  <span class="ct-badge is-inline">T1</span> etiketi modelin kullandığı kategoriyi
+                  gösterir; aynı etiketi taşıyan evreler aynı katsayıyı alır.
+                </p>
+                <p class="ct-guide-foot">
+                  Klinik T evresi, muayene ve görüntüleme ile ameliyat öncesi belirlenen lokal
+                  evredir; patolojik evre değildir. Biyopside Gleason 4+3=7, PSA 12 ve mpMR'de
+                  PI-RADS 5 olsa bile EPE yoksa otomatik olarak cT3 denmez — evre cT2 olabilir.
+                </p>
+              </details>
+            </div>
+          </div>
+
+          <div class="group">
+            <h2 class="group-label">Biyopsi bulguları</h2>
+
+            <div class="field">
+              <label for="gleason-2017">Biyopsi Gleason skoru / ISUP derece grubu</label>
+              <div class="control">
+                <select id="gleason-2017" name="gleason">
+                  <option value="1">3 + 3 (ISUP Derece Grubu 1)</option>
+                  <option value="2">3 + 4 (ISUP Derece Grubu 2)</option>
+                  <option value="3">4 + 3 (ISUP Derece Grubu 3)</option>
+                  <option value="4">4 + 4 / 3 + 5 / 5 + 3 (ISUP Derece Grubu 4)</option>
+                  <option value="5">4 + 5 / 5 + 4 / 5 + 5 (ISUP Derece Grubu 5)</option>
+                </select>
+              </div>
+              <p class="note">Model dereceleri 1-2 / 3 / 4-5 olarak gruplar; ISUP 1 ile 2 ve
+                ISUP 4 ile 5 aynı katsayıyı alır.</p>
+            </div>
+
+            <div class="field">
+              <div class="label-row">
+                <label for="coreshigh-2017">En yüksek dereceli kanser içeren kor<span class="sr-only"> yüzdesi (%)</span></label>
+                <button class="link-btn" type="button" data-toggle-helper="helper-coreshigh-2017" aria-expanded="false">kor sayısından</button>
+              </div>
+              <div class="control">
+                <input type="number" id="coreshigh-2017" name="coreshigh" inputmode="decimal" step="1" min="0" max="100" placeholder="40">
+                <span class="suffix" aria-hidden="true">%</span>
+              </div>
+              <div class="mini-calc" id="helper-coreshigh-2017" data-target="coreshigh-2017" hidden>
+                <div>
+                  <label for="pos-coreshigh-2017">Pozitif</label>
+                  <input type="number" id="pos-coreshigh-2017" data-role="pos" inputmode="numeric" step="1" min="0" placeholder="0">
+                </div>
+                <span class="mini-sep" aria-hidden="true">/</span>
+                <div>
+                  <label for="tot-coreshigh-2017">Toplam</label>
+                  <input type="number" id="tot-coreshigh-2017" data-role="tot" inputmode="numeric" step="1" min="1" placeholder="12">
+                </div>
+              </div>
+              <p class="note">Biyopside en yüksek dereceli hastalık içeren kor oranı.</p>
+              <p class="error" data-error-for="coreshigh-2017"></p>
+            </div>
+
+            <div class="field">
+              <div class="label-row">
+                <label for="coreslow-2017">Daha düşük dereceli kanser içeren kor<span class="sr-only"> yüzdesi (%)</span></label>
+                <button class="link-btn" type="button" data-toggle-helper="helper-coreslow-2017" aria-expanded="false">kor sayısından</button>
+              </div>
+              <div class="control">
+                <input type="number" id="coreslow-2017" name="coreslow" inputmode="decimal" step="1" min="0" max="90" placeholder="10">
+                <span class="suffix" aria-hidden="true">%</span>
+              </div>
+              <div class="mini-calc" id="helper-coreslow-2017" data-target="coreslow-2017" hidden>
+                <div>
+                  <label for="pos-coreslow-2017">Pozitif</label>
+                  <input type="number" id="pos-coreslow-2017" data-role="pos" inputmode="numeric" step="1" min="0" placeholder="0">
+                </div>
+                <span class="mini-sep" aria-hidden="true">/</span>
+                <div>
+                  <label for="tot-coreslow-2017">Toplam</label>
+                  <input type="number" id="tot-coreslow-2017" data-role="tot" inputmode="numeric" step="1" min="1" placeholder="12">
+                </div>
+              </div>
+              <p class="note">Daha düşük dereceli hastalık içeren kor oranı. Yoksa 0 girin.</p>
+              <p class="error" data-error-for="coreslow-2017"></p>
+            </div>
+          </div>
+
+          <button class="reset-btn" type="button" data-reset="2017">Alanları temizle</button>
+        </form>
+      </section>
+
+      <!-- =========================== BRIGANTI 2019 =========================== -->
+      <section class="panel" id="panel-2019" role="tabpanel" aria-labelledby="tab-2019" hidden>
+        <form class="card form" id="form-2019" autocomplete="off" novalidate>
+          <p class="form-note">
+            mpMR-hedefli biyopsi ve eş zamanlı sistematik biyopsi ile tanı alan hastalar içindir.
+            <cite>Gandaglia G, ve ark. Eur Urol 2019;75:506–514.</cite>
+          </p>
+
+          <div class="group">
+            <h2 class="group-label">Klinik ve mpMR verileri</h2>
+
+            <div class="field">
+              <label for="psa-2019">Ameliyat öncesi PSA<span class="sr-only"> (ng/mL)</span></label>
+              <div class="control">
+                <input type="number" id="psa-2019" name="psa" inputmode="decimal" step="0.01" min="0" max="80" placeholder="8,4">
+                <span class="suffix" aria-hidden="true">ng/mL</span>
+              </div>
+              <p class="error" data-error-for="psa-2019"></p>
+            </div>
+
+            <div class="field">
+              <label for="stage-2019">Klinik T evresi (mpMR'ye göre)</label>
+              <div class="control">
+                <select id="stage-2019" name="stage">
+                  <option value="cT1">cT1</option>
+                  <option value="cT2">cT2</option>
+                  <option value="cT3a">cT3a</option>
+                  <option value="cT3b">cT3b</option>
+                  <option value="cT4">cT4</option>
+                </select>
+              </div>
+              <p class="stage-current" id="stagecur-2019"><span data-role="def"></span></p>
+              <p class="note">Model bu değişkeni mpMR'de organa sınırlı / ekstrakapsüler yayılım /
+                seminal vezikül invazyonu olarak kodlar: cT1 ve cT2 organa sınırlı, cT3a EKY,
+                cT3b ve cT4 SVİ katsayısını alır.</p>
+              <p class="stage-note" id="stagenote-2019"></p>
+
+              <details class="ct-guide">
+                <summary>
+                  <span class="ct-guide-title">cT evre rehberi</span>
+                  <span class="ct-guide-sub">dokunarak seçin</span>
+                </summary>
+                <div class="ct-ladder" data-model="2019">
+                  <div class="ct-rung" data-stage="cT1">
+                    <button type="button" class="ct-node" data-stage="cT1">
+                      <span class="ct-chip">cT1</span>
+                      <span class="ct-text">Tümör klinik olarak ele gelmiyor / görüntülemede belirgin değil.</span>
+                      <span class="ct-badge">Organa sınırlı</span>
+                    </button>
+                    <button type="button" class="ct-sub" data-stage="cT1">
+                      <span class="ct-chip is-sub">cT1c</span>
+                      <span class="ct-text">Tümör ele gelmiyor; PSA yüksekliği vb. nedeniyle biyopsiyle saptanıyor.</span>
+                    </button>
+                  </div>
+
+                  <div class="ct-rung" data-stage="cT2">
+                    <button type="button" class="ct-node" data-stage="cT2">
+                      <span class="ct-chip">cT2</span>
+                      <span class="ct-text">Tümör prostatla sınırlı.</span>
+                      <span class="ct-badge">Organa sınırlı</span>
+                    </button>
+                    <button type="button" class="ct-sub" data-stage="cT2">
+                      <span class="ct-chip is-sub">cT2a</span>
+                      <span class="ct-text">Bir lobun ≤ %50'si.</span>
+                    </button>
+                    <button type="button" class="ct-sub" data-stage="cT2">
+                      <span class="ct-chip is-sub">cT2b</span>
+                      <span class="ct-text">Bir lobun &gt; %50'si.</span>
+                    </button>
+                    <button type="button" class="ct-sub" data-stage="cT2">
+                      <span class="ct-chip is-sub">cT2c</span>
+                      <span class="ct-text">Her iki lob.</span>
+                    </button>
+                  </div>
+
+                  <div class="ct-rung" data-stage="cT3a">
+                    <button type="button" class="ct-node" data-stage="cT3a">
+                      <span class="ct-chip">cT3a</span>
+                      <span class="ct-text">Prostat dışına ekstrakapsüler uzanım.</span>
+                      <span class="ct-badge" title="Ekstrakapsüler yayılım">EKY</span>
+                    </button>
+                  </div>
+
+                  <div class="ct-rung" data-stage="cT3b">
+                    <button type="button" class="ct-node" data-stage="cT3b">
+                      <span class="ct-chip">cT3b</span>
+                      <span class="ct-text">Seminal vezikül invazyonu.</span>
+                      <span class="ct-badge" title="Seminal vezikül invazyonu">SVİ</span>
+                    </button>
+                  </div>
+
+                  <div class="ct-rung" data-stage="cT4">
+                    <button type="button" class="ct-node" data-stage="cT4">
+                      <span class="ct-chip">cT4</span>
+                      <span class="ct-text">Mesane boynu, rektum, pelvik duvar gibi komşu yapılara invazyon.</span>
+                      <span class="ct-badge" title="Seminal vezikül invazyonu">SVİ</span>
+                    </button>
+                  </div>
+                </div>
+
+                <p class="ct-guide-foot">
+                  <span class="ct-badge is-inline">EKY</span> etiketi modelin mpMR'ye göre
+                  kullandığı kategoriyi gösterir; aynı etiketi taşıyan evreler aynı katsayıyı alır.
+                </p>
+                <p class="ct-guide-foot">
+                  mpMR'de ekstrakapsüler uzanım görülüyorsa cT3a kabul edilebilir; yalnızca
+                  PI-RADS 5 olması tek başına cT3 anlamına gelmez.
+                </p>
+              </details>
+            </div>
+
+            <div class="field">
+              <label for="lesion-2019">mpMR'de maksimum lezyon çapı<span class="sr-only"> (mm)</span></label>
+              <div class="control">
+                <input type="number" id="lesion-2019" name="lesion" inputmode="decimal" step="0.1" min="0" max="45" placeholder="14">
+                <span class="suffix" aria-hidden="true">mm</span>
+              </div>
+              <p class="note">PI-RADS skoru en yüksek olan lezyon; eşitlik varsa en büyük çaplı olan.</p>
+              <p class="error" data-error-for="lesion-2019"></p>
+            </div>
+          </div>
+
+          <div class="group">
+            <h2 class="group-label">Biyopsi bulguları</h2>
+
+            <div class="field">
+              <label for="gleason-2019">MR-hedefli biyopside Gleason skoru / ISUP derece grubu</label>
+              <div class="control">
+                <select id="gleason-2019" name="gleason">
+                  <option value="1">3 + 3 (ISUP Derece Grubu 1)</option>
+                  <option value="2">3 + 4 (ISUP Derece Grubu 2)</option>
+                  <option value="3">4 + 3 (ISUP Derece Grubu 3)</option>
+                  <option value="4">4 + 4 / 3 + 5 / 5 + 3 (ISUP Derece Grubu 4)</option>
+                  <option value="5">4 + 5 / 5 + 4 / 5 + 5 (ISUP Derece Grubu 5)</option>
+                </select>
+              </div>
+              <p class="note">Model dereceleri 1-2 / 3 / 4-5 olarak gruplar; ISUP 1 ile 2 ve
+                ISUP 4 ile 5 aynı katsayıyı alır.</p>
+            </div>
+
+            <div class="field">
+              <div class="label-row">
+                <label for="cores-2019">Sistematik biyopside klinik anlamlı kanserli kor<span class="sr-only"> yüzdesi (%)</span></label>
+                <button class="link-btn" type="button" data-toggle-helper="helper-cores-2019" aria-expanded="false">kor sayısından</button>
+              </div>
+              <div class="control">
+                <input type="number" id="cores-2019" name="cores" inputmode="decimal" step="1" min="0" max="100" placeholder="30">
+                <span class="suffix" aria-hidden="true">%</span>
+              </div>
+              <div class="mini-calc" id="helper-cores-2019" data-target="cores-2019" hidden>
+                <div>
+                  <label for="pos-cores-2019">Pozitif</label>
+                  <input type="number" id="pos-cores-2019" data-role="pos" inputmode="numeric" step="1" min="0" placeholder="0">
+                </div>
+                <span class="mini-sep" aria-hidden="true">/</span>
+                <div>
+                  <label for="tot-cores-2019">Toplam</label>
+                  <input type="number" id="tot-cores-2019" data-role="tot" inputmode="numeric" step="1" min="1" placeholder="12">
+                </div>
+              </div>
+              <p class="note">Klinik anlamlı kanser = ISUP derece grubu ≥ 2.</p>
+              <p class="error" data-error-for="cores-2019"></p>
+            </div>
+          </div>
+
+          <button class="reset-btn" type="button" data-reset="2019">Alanları temizle</button>
+        </form>
+      </section>
+
+      <!-- ============================ MODEL AYRINTILARI ====================== -->
+      <details class="card info">
+        <summary>Model ayrıntıları ve katsayılar</summary>
+        <div class="info-body">
+          <h3>Modeller ne kullanır</h3>
+          <p><strong>Briganti 2017</strong> — sistematik biyopsi verisiyle LNİ riskini tahmin eder.
+            Yayınlanmış değişkenler: PSA, klinik evre, biyopsi ISUP derece grubu, en yüksek dereceli
+            kanser içeren kor yüzdesi ve daha düşük dereceli kanser içeren kor yüzdesi.</p>
+          <p><strong>Briganti 2019</strong> — mpMR-hedefli biyopsi çağına uyarlanmıştır. Yayınlanmış
+            değişkenler: PSA, mpMR'de klinik evre, mpMR'de maksimum indeks lezyon çapı, hedefli
+            biyopside ISUP derece grubu ve sistematik biyopside klinik anlamlı kanser içeren kor
+            yüzdesi. <em>PI-RADS skoru ve hedefli biyopsideki maksimum tümör uzunluğu bu modelin
+            bağımsız değişkenleri değildir</em>; bu nedenle forma alınmamıştır.</p>
+          <p><strong>Eşik</strong> — EAU kılavuzları, tahmini LNİ riski %7 ve üzerindeyse ePLND
+            önerir.</p>
+
+          <h3>Yüksek riskli hastalarda dikkat</h3>
+          <p>150 yüksek riskli hastalık olgusunu içeren tek merkezli bir seride (LNİ %26) her iki
+            nomogramın da ayırt ediciliği düşük bulunmuştur: önerilen eşikte duyarlılık yüksek
+            (2017 için 0,97; 2019 için 0,96) ancak özgüllük çok düşüktür (0,14 ve 0,18; AUC 0,56 ve
+            0,57). Nomogramlar esas olarak orta riskli hastada gereksiz ePLND'yi elemek için
+            tasarlanmıştır; yüksek riskli hastalıkta karar tek başına bu skora dayandırılmamalıdır.
+            <cite>Di Pierro GB, ve ark. Cancers 2023;15:1683.</cite></p>
+
+          <h3>Katsayılar nasıl elde edildi</h3>
+          <p>Her iki makale de beta katsayılarını “Supplementary Table 1”e bırakır; ana metinde
+            yalnızca yuvarlanmış odds oranları vardır. Katsayılar bu nedenle yayınlanmış nomogram
+            şekillerinin (Gandaglia, <em>Eur Urol</em> 2017;72:632–640 Şekil 1 ve 2019;75:506–514
+            Şekil 1) geometrisinden geri hesaplandı: puan eksenleri β ile doğru orantılı, risk
+            ekseni ise logit'te doğrusaldır; bu iki ilişki hem her β'yı hem de sabit terimi verir.
+            Şekiller piksel düzeyinde ölçüldü (risk ekseni uyumu: maksimum sapma 0,003 logit).
+            Ölçüm belirsizliği %7 eşiği civarında 0,1 puanın altındadır.</p>
+
+          <div class="table-scroll">
+            <table class="coef-table">
+              <caption>Geri hesaplanan katsayıların yayınla karşılaştırması</caption>
+              <thead>
+                <tr><th>Model</th><th>Değişken</th><th>OR (şekilden)</th><th>OR (yayın)</th></tr>
+              </thead>
+              <tbody>
+                <tr><td rowspan="7">2017<span class="tbl-sub">Tablo 2, Model 1</span></td><td>PSA (ng/mL)</td><td>1,086</td><td>1,08</td></tr>
+                <tr><td>Klinik evre T2</td><td>2,337</td><td>2,27</td></tr>
+                <tr><td>Klinik evre T3</td><td>2,869</td><td>2,87</td></tr>
+                <tr><td>ISUP 3</td><td>9,647</td><td>9,5</td></tr>
+                <tr><td>ISUP 4-5</td><td>14,508</td><td>14,5</td></tr>
+                <tr><td>En yüksek dereceli kor %</td><td>1,027</td><td>1,02</td></tr>
+                <tr><td>Daha düşük dereceli kor %</td><td>1,014</td><td>1,01</td></tr>
+                <tr><td rowspan="6">2019<span class="tbl-sub">Tablo 2, Model 5</span></td><td>PSA (ng/mL)</td><td>1,043</td><td>1,04</td></tr>
+                <tr><td>mpMR ekstrakapsüler yayılım</td><td>3,392</td><td>3,39</td></tr>
+                <tr><td>mpMR seminal vezikül invazyonu</td><td>4,336</td><td>4,36</td></tr>
+                <tr><td>ISUP 3</td><td>3,333</td><td>3,33</td></tr>
+                <tr><td>ISUP 4-5</td><td>6,085</td><td>6,08</td></tr>
+                <tr><td>Lezyon çapı (mm)</td><td>1,032</td><td>1,03</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Sabit terim, katsayılardan bağımsız olarak da doğrulandı: makalelerin bildirdiği “%7
+            eşiğinin altında kalan hasta oranı” (2017 için %69, 2019 için %57), kohort dağılımlarıyla
+            yeniden üretildiğinde bu modellerle %68 ve %57 çıkmaktadır.</p>
+
+          <h3>ISUP gruplandırması</h3>
+          <p>Her iki yayın da derece gruplarını 1-2 / 3 / 4-5 olarak kategorize etmiştir. Bu nedenle
+            ISUP 1 ile 2, ve ISUP 4 ile 5 aynı riski verir; bu modelin kendi tercihidir, hesaplama
+            hatası değildir.</p>
+
+          <p class="calib-note">Lojistik regresyon katsayıları <code>app.js</code> içinde tek bir
+            yerde (<code>MODELS</code> nesnesi) tanımlıdır. Denetim için
+            <code>tools/reconstruct_nomogram.py</code> katsayıları şekillerden yeniden türetip
+            <code>app.js</code> ile karşılaştırır; <a href="tests/">tests/</a> sayfası ise uygulamayı
+            gerçek arayüz üzerinden sınar.</p>
+        </div>
+      </details>
+    </div>
+
+    <!-- ================================ SONUÇ ================================ -->
+    <aside class="col-side">
+      <section class="result card" id="result" aria-live="polite">
+        <div class="result-empty" id="resultEmpty">
+          <p class="result-label">Tahmini LNİ riski</p>
+          <p class="result-placeholder">Sonucu görmek için tüm alanları doldurun.</p>
+          <ul class="missing" id="missingList"></ul>
+        </div>
+
+        <div class="result-body" id="resultBody" hidden>
+          <div class="result-head">
+            <p class="result-label">Tahmini LNİ riski</p>
+            <span class="result-model" id="resultModel">Briganti 2017</span>
+          </div>
+
+          <p class="result-value"><span class="pct" aria-hidden="true">%</span><span id="riskValue">0,0</span></p>
+
+          <div class="gauge" role="img" id="gauge" aria-label="Riskin %7 EAU eşiğine göre konumu">
+            <div class="gauge-bar">
+              <div class="gauge-track"><div class="gauge-fill" id="gaugeFill"></div></div>
+              <div class="gauge-gate"><span>%7</span></div>
+            </div>
+            <div class="gauge-scale"><span>%0</span><span>%10</span><span>%20+</span></div>
+          </div>
+
+          <p class="verdict" id="verdict"></p>
+
+          <div class="result-actions">
+            <button class="ghost-btn" type="button" id="copyBtn">Özeti kopyala</button>
+          </div>
+        </div>
+      </section>
+    </aside>
   </div>
-
-  <!-- ============================ BRIGANTI 2017 ============================ -->
-  <section class="panel" id="panel-2017" role="tabpanel" aria-labelledby="tab-2017">
-    <form class="card form" id="form-2017" autocomplete="off" novalidate>
-      <p class="form-note">
-        Sistematik (standart) biyopsi ile tanı alan hastalar içindir.
-        Gandaglia G, ve ark. <em>Eur Urol</em> 2017;72:632–640.
-      </p>
-
-      <div class="field">
-        <label for="psa-2017">Ameliyat öncesi PSA <span class="unit">(ng/mL)</span></label>
-        <input type="number" id="psa-2017" name="psa" inputmode="decimal" step="0.01" min="0" max="50" placeholder="örn. 8,4">
-        <p class="error" data-error-for="psa-2017"></p>
-      </div>
-
-      <div class="field">
-        <label for="stage-2017">Klinik T evresi</label>
-        <p class="helper helper-top">Model klinik evreyi T1 / T2 / T3 olarak gruplar; cT3a, cT3b ve
-          cT4 aynı katsayıyı alır.</p>
-        <select id="stage-2017" name="stage">
-          <option value="cT1">cT1</option>
-          <option value="cT2">cT2</option>
-          <option value="cT3a">cT3a</option>
-          <option value="cT3b">cT3b</option>
-          <option value="cT4">cT4</option>
-        </select>
-        <p class="stage-current" id="stagecur-2017">
-          <span class="stage-current-def" data-role="def"></span>
-        </p>
-        <p class="stage-note" id="stagenote-2017"></p>
-
-        <details class="ct-guide">
-          <summary>
-            <span class="ct-guide-title">cT evre rehberi</span>
-            <span class="ct-guide-sub">dokunarak seçin</span>
-          </summary>
-          <div class="ct-ladder" data-model="2017">
-            <div class="ct-rung" data-stage="cT1">
-              <button type="button" class="ct-node" data-stage="cT1" data-badge="T1">
-                <span class="ct-chip">cT1</span>
-                <span class="ct-text">Tümör klinik olarak palpe edilemiyor / görüntülemede belirgin değil.</span>
-                <span class="ct-badge">T1</span>
-              </button>
-              <button type="button" class="ct-sub" data-stage="cT1">
-                <span class="ct-chip is-sub">cT1c</span>
-                <span class="ct-text">PSA yüksekliği nedeniyle yapılan biyopside kanser saptanması; en sık kategori.</span>
-              </button>
-            </div>
-
-            <div class="ct-rung" data-stage="cT2">
-              <button type="button" class="ct-node" data-stage="cT2" data-badge="T2">
-                <span class="ct-chip">cT2</span>
-                <span class="ct-text">Tümör prostat içinde sınırlı.</span>
-                <span class="ct-badge">T2</span>
-              </button>
-              <button type="button" class="ct-sub" data-stage="cT2">
-                <span class="ct-chip is-sub">cT2a</span>
-                <span class="ct-text">Bir lobun yarısından azı.</span>
-              </button>
-              <button type="button" class="ct-sub" data-stage="cT2">
-                <span class="ct-chip is-sub">cT2b</span>
-                <span class="ct-text">Bir lobun yarısından fazlası.</span>
-              </button>
-              <button type="button" class="ct-sub" data-stage="cT2">
-                <span class="ct-chip is-sub">cT2c</span>
-                <span class="ct-text">Her iki lob.</span>
-              </button>
-            </div>
-
-            <div class="ct-rung" data-stage="cT3a">
-              <button type="button" class="ct-node" data-stage="cT3a" data-badge="T3">
-                <span class="ct-chip">cT3a</span>
-                <span class="ct-text">Prostat dışına ekstrakapsüler uzanım (EPE) ± mesane boynu tutulumu.</span>
-                <span class="ct-badge">T3</span>
-              </button>
-            </div>
-
-            <div class="ct-rung" data-stage="cT3b">
-              <button type="button" class="ct-node" data-stage="cT3b" data-badge="T3">
-                <span class="ct-chip">cT3b</span>
-                <span class="ct-text">Seminal vezikül invazyonu.</span>
-                <span class="ct-badge">T3</span>
-              </button>
-            </div>
-
-            <div class="ct-rung" data-stage="cT4">
-              <button type="button" class="ct-node" data-stage="cT4" data-badge="T3">
-                <span class="ct-chip">cT4</span>
-                <span class="ct-text">Komşu yapılara invazyon (ör. mesane, rektum, pelvik duvar).</span>
-                <span class="ct-badge">T3</span>
-              </button>
-            </div>
-          </div>
-
-          <p class="ct-guide-foot">
-            <span class="ct-badge is-inline">T1</span> etiketi modelin kullandığı kategoriyi gösterir;
-            aynı etiketi taşıyan evreler aynı katsayıyı alır.
-          </p>
-          <p class="ct-guide-foot">
-            Klinik T evresi, muayene ve görüntüleme ile ameliyat öncesi belirlenen lokal evredir;
-            patolojik evre değildir. Biyopside Gleason 4+3=7, PSA 12 ve mpMR'de PI-RADS 5 olsa bile
-            EPE yoksa otomatik olarak cT3 denmez — evre cT2 olabilir.
-          </p>
-        </details>
-      </div>
-
-      <div class="field">
-        <label for="gleason-2017">Biyopsi Gleason skoru / ISUP derece grubu</label>
-        <p class="helper helper-top">Model dereceleri 1-2 / 3 / 4-5 olarak gruplar; ISUP 1 ile 2 ve
-          ISUP 4 ile 5 aynı katsayıyı alır.</p>
-        <select id="gleason-2017" name="gleason">
-          <option value="1">3 + 3 (ISUP Derece Grubu 1)</option>
-          <option value="2">3 + 4 (ISUP Derece Grubu 2)</option>
-          <option value="3">4 + 3 (ISUP Derece Grubu 3)</option>
-          <option value="4">4 + 4 / 3 + 5 / 5 + 3 (ISUP Derece Grubu 4)</option>
-          <option value="5">4 + 5 / 5 + 4 / 5 + 5 (ISUP Derece Grubu 5)</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="coreshigh-2017">En yüksek dereceli kanser içeren kor yüzdesi <span class="unit">(%)</span></label>
-        <input type="number" id="coreshigh-2017" name="coreshigh" inputmode="decimal" step="1" min="0" max="100" placeholder="örn. 40">
-        <div class="helper-row">
-          <p class="helper">Biyopside en yüksek dereceli hastalık içeren kor oranı.</p>
-          <button class="link-btn" type="button" data-toggle-helper="helper-coreshigh-2017" aria-expanded="false">Kor sayısından hesapla</button>
-        </div>
-        <div class="mini-calc" id="helper-coreshigh-2017" data-target="coreshigh-2017" hidden>
-          <div>
-            <label for="pos-coreshigh-2017">Pozitif</label>
-            <input type="number" id="pos-coreshigh-2017" data-role="pos" inputmode="numeric" step="1" min="0" placeholder="0">
-          </div>
-          <span class="mini-sep">/</span>
-          <div>
-            <label for="tot-coreshigh-2017">Toplam</label>
-            <input type="number" id="tot-coreshigh-2017" data-role="tot" inputmode="numeric" step="1" min="1" placeholder="12">
-          </div>
-        </div>
-        <p class="error" data-error-for="coreshigh-2017"></p>
-      </div>
-
-      <div class="field">
-        <label for="coreslow-2017">Daha düşük dereceli kanser içeren kor yüzdesi <span class="unit">(%)</span></label>
-        <input type="number" id="coreslow-2017" name="coreslow" inputmode="decimal" step="1" min="0" max="90" placeholder="örn. 10">
-        <div class="helper-row">
-          <p class="helper">Daha düşük dereceli hastalık içeren kor oranı. Yoksa 0 girin.</p>
-          <button class="link-btn" type="button" data-toggle-helper="helper-coreslow-2017" aria-expanded="false">Kor sayısından hesapla</button>
-        </div>
-        <div class="mini-calc" id="helper-coreslow-2017" data-target="coreslow-2017" hidden>
-          <div>
-            <label for="pos-coreslow-2017">Pozitif</label>
-            <input type="number" id="pos-coreslow-2017" data-role="pos" inputmode="numeric" step="1" min="0" placeholder="0">
-          </div>
-          <span class="mini-sep">/</span>
-          <div>
-            <label for="tot-coreslow-2017">Toplam</label>
-            <input type="number" id="tot-coreslow-2017" data-role="tot" inputmode="numeric" step="1" min="1" placeholder="12">
-          </div>
-        </div>
-        <p class="error" data-error-for="coreslow-2017"></p>
-      </div>
-
-      <button class="reset-btn" type="button" data-reset="2017">Alanları temizle</button>
-    </form>
-  </section>
-
-  <!-- ============================ BRIGANTI 2019 ============================ -->
-  <section class="panel" id="panel-2019" role="tabpanel" aria-labelledby="tab-2019" hidden>
-    <form class="card form" id="form-2019" autocomplete="off" novalidate>
-      <p class="form-note">
-        mpMR-hedefli biyopsi + eş zamanlı sistematik biyopsi ile tanı alan hastalar içindir.
-        Gandaglia G, ve ark. <em>Eur Urol</em> 2019;75:506–514.
-      </p>
-
-      <div class="field">
-        <label for="psa-2019">Ameliyat öncesi PSA <span class="unit">(ng/mL)</span></label>
-        <input type="number" id="psa-2019" name="psa" inputmode="decimal" step="0.01" min="0" max="80" placeholder="örn. 8,4">
-        <p class="error" data-error-for="psa-2019"></p>
-      </div>
-
-      <div class="field">
-        <label for="stage-2019">Klinik T evresi (mpMR'ye göre)</label>
-        <p class="helper helper-top">Model bu değişkeni mpMR'de organa sınırlı / ekstrakapsüler
-          yayılım / seminal vezikül invazyonu olarak kodlar: cT1 ve cT2 organa sınırlı, cT3a EKY,
-          cT3b ve cT4 SVİ katsayısını alır.</p>
-        <select id="stage-2019" name="stage">
-          <option value="cT1">cT1</option>
-          <option value="cT2">cT2</option>
-          <option value="cT3a">cT3a</option>
-          <option value="cT3b">cT3b</option>
-          <option value="cT4">cT4</option>
-        </select>
-        <p class="stage-current" id="stagecur-2019">
-          <span class="stage-current-def" data-role="def"></span>
-        </p>
-        <p class="stage-note" id="stagenote-2019"></p>
-
-        <details class="ct-guide">
-          <summary>
-            <span class="ct-guide-title">cT evre rehberi</span>
-            <span class="ct-guide-sub">dokunarak seçin</span>
-          </summary>
-          <div class="ct-ladder" data-model="2019">
-            <div class="ct-rung" data-stage="cT1">
-              <button type="button" class="ct-node" data-stage="cT1" data-badge="Organa sınırlı">
-                <span class="ct-chip">cT1</span>
-                <span class="ct-text">Tümör klinik olarak ele gelmiyor / görüntülemede belirgin değil.</span>
-                <span class="ct-badge">Organa sınırlı</span>
-              </button>
-              <button type="button" class="ct-sub" data-stage="cT1">
-                <span class="ct-chip is-sub">cT1c</span>
-                <span class="ct-text">Tümör ele gelmiyor; PSA yüksekliği vb. nedeniyle biyopsiyle saptanıyor.</span>
-              </button>
-            </div>
-
-            <div class="ct-rung" data-stage="cT2">
-              <button type="button" class="ct-node" data-stage="cT2" data-badge="Organa sınırlı">
-                <span class="ct-chip">cT2</span>
-                <span class="ct-text">Tümör prostatla sınırlı.</span>
-                <span class="ct-badge">Organa sınırlı</span>
-              </button>
-              <button type="button" class="ct-sub" data-stage="cT2">
-                <span class="ct-chip is-sub">cT2a</span>
-                <span class="ct-text">Bir lobun ≤ %50'si.</span>
-              </button>
-              <button type="button" class="ct-sub" data-stage="cT2">
-                <span class="ct-chip is-sub">cT2b</span>
-                <span class="ct-text">Bir lobun &gt; %50'si.</span>
-              </button>
-              <button type="button" class="ct-sub" data-stage="cT2">
-                <span class="ct-chip is-sub">cT2c</span>
-                <span class="ct-text">Her iki lob.</span>
-              </button>
-            </div>
-
-            <div class="ct-rung" data-stage="cT3a">
-              <button type="button" class="ct-node" data-stage="cT3a" data-badge="EKY">
-                <span class="ct-chip">cT3a</span>
-                <span class="ct-text">Prostat dışına ekstrakapsüler uzanım.</span>
-                <span class="ct-badge" title="Ekstrakapsüler yayılım">EKY</span>
-              </button>
-            </div>
-
-            <div class="ct-rung" data-stage="cT3b">
-              <button type="button" class="ct-node" data-stage="cT3b" data-badge="SVİ">
-                <span class="ct-chip">cT3b</span>
-                <span class="ct-text">Seminal vezikül invazyonu.</span>
-                <span class="ct-badge" title="Seminal vezikül invazyonu">SVİ</span>
-              </button>
-            </div>
-
-            <div class="ct-rung" data-stage="cT4">
-              <button type="button" class="ct-node" data-stage="cT4" data-badge="SVİ">
-                <span class="ct-chip">cT4</span>
-                <span class="ct-text">Mesane boynu, rektum, pelvik duvar gibi komşu yapılara invazyon.</span>
-                <span class="ct-badge" title="Seminal vezikül invazyonu">SVİ</span>
-              </button>
-            </div>
-          </div>
-
-          <p class="ct-guide-foot">
-            <span class="ct-badge is-inline">EKY</span> etiketi modelin mpMR'ye göre kullandığı
-            kategoriyi gösterir; aynı etiketi taşıyan evreler aynı katsayıyı alır.
-          </p>
-          <p class="ct-guide-foot">
-            mpMR'de ekstrakapsüler uzanım görülüyorsa cT3a kabul edilebilir; yalnızca PI-RADS 5
-            olması tek başına cT3 anlamına gelmez.
-          </p>
-        </details>
-      </div>
-
-      <div class="field">
-        <label for="lesion-2019">mpMR'de maksimum lezyon çapı <span class="unit">(mm)</span></label>
-        <input type="number" id="lesion-2019" name="lesion" inputmode="decimal" step="0.1" min="0" max="45" placeholder="örn. 14">
-        <p class="helper">PI-RADS skoru en yüksek olan lezyon; eşitlik varsa en büyük çaplı olan.</p>
-        <p class="error" data-error-for="lesion-2019"></p>
-      </div>
-
-      <div class="field">
-        <label for="gleason-2019">MR-hedefli biyopside Gleason skoru / ISUP derece grubu</label>
-        <p class="helper helper-top">Model dereceleri 1-2 / 3 / 4-5 olarak gruplar; ISUP 1 ile 2 ve
-          ISUP 4 ile 5 aynı katsayıyı alır.</p>
-        <select id="gleason-2019" name="gleason">
-          <option value="1">3 + 3 (ISUP Derece Grubu 1)</option>
-          <option value="2">3 + 4 (ISUP Derece Grubu 2)</option>
-          <option value="3">4 + 3 (ISUP Derece Grubu 3)</option>
-          <option value="4">4 + 4 / 3 + 5 / 5 + 3 (ISUP Derece Grubu 4)</option>
-          <option value="5">4 + 5 / 5 + 4 / 5 + 5 (ISUP Derece Grubu 5)</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="cores-2019">Sistematik biyopside klinik anlamlı kanser içeren kor yüzdesi <span class="unit">(%)</span></label>
-        <input type="number" id="cores-2019" name="cores" inputmode="decimal" step="1" min="0" max="100" placeholder="örn. 30">
-        <div class="helper-row">
-          <p class="helper">Klinik anlamlı kanser = ISUP derece grubu ≥ 2.</p>
-          <button class="link-btn" type="button" data-toggle-helper="helper-cores-2019" aria-expanded="false">Kor sayısından hesapla</button>
-        </div>
-        <div class="mini-calc" id="helper-cores-2019" data-target="cores-2019" hidden>
-          <div>
-            <label for="pos-cores-2019">Pozitif</label>
-            <input type="number" id="pos-cores-2019" data-role="pos" inputmode="numeric" step="1" min="0" placeholder="0">
-          </div>
-          <span class="mini-sep">/</span>
-          <div>
-            <label for="tot-cores-2019">Toplam</label>
-            <input type="number" id="tot-cores-2019" data-role="tot" inputmode="numeric" step="1" min="1" placeholder="12">
-          </div>
-        </div>
-        <p class="error" data-error-for="cores-2019"></p>
-      </div>
-
-      <button class="reset-btn" type="button" data-reset="2019">Alanları temizle</button>
-    </form>
-  </section>
-
-  <!-- ================================ SONUÇ ================================ -->
-  <section class="result card" id="result" aria-live="polite">
-    <div class="result-empty" id="resultEmpty">
-      <p class="result-label">Tahmini LNİ riski</p>
-      <p class="result-placeholder">Sonucu görmek için tüm alanları doldurun.</p>
-      <ul class="missing" id="missingList"></ul>
-    </div>
-
-    <div class="result-body" id="resultBody" hidden>
-      <p class="result-label">Tahmini LNİ riski <span class="result-model" id="resultModel">Briganti 2017</span></p>
-      <p class="result-value"><span id="riskValue">0,0</span><span class="pct">%</span></p>
-
-      <div class="gauge" role="img" id="gauge" aria-label="Riskin %7 EAU eşiğine göre konumu">
-        <div class="gauge-bar">
-          <div class="gauge-track"><div class="gauge-fill" id="gaugeFill"></div></div>
-          <div class="gauge-threshold"><span>%7</span></div>
-        </div>
-        <div class="gauge-scale"><span>%0</span><span>%25</span><span>%50+</span></div>
-      </div>
-
-      <p class="verdict" id="verdict"></p>
-
-      <div class="result-actions">
-        <button class="ghost-btn" type="button" id="copyBtn">Özeti kopyala</button>
-      </div>
-    </div>
-  </section>
-
-  <details class="card info">
-    <summary>Model ayrıntıları ve katsayılar</summary>
-    <div class="info-body">
-      <p><strong>Briganti 2017</strong> — sistematik biyopsi verisiyle LNİ riskini tahmin eder. Yayınlanmış
-        değişkenler: PSA, klinik evre, biyopsi ISUP derece grubu, en yüksek dereceli kanser içeren kor yüzdesi ve
-        daha düşük dereceli kanser içeren kor yüzdesi.</p>
-      <p><strong>Briganti 2019</strong> — mpMR-hedefli biyopsi çağına uyarlanmıştır. Yayınlanmış değişkenler:
-        PSA, mpMR'de klinik evre, mpMR'de maksimum indeks lezyon çapı, hedefli biyopside ISUP derece grubu ve
-        sistematik biyopside klinik anlamlı kanser içeren kor yüzdesi. <em>PI-RADS skoru ve hedefli biyopsideki
-        maksimum tümör uzunluğu bu modelin bağımsız değişkenleri değildir</em>; bu nedenle forma alınmamıştır.</p>
-      <p><strong>Eşik</strong> — EAU kılavuzları, tahmini LNİ riski %7 ve üzerindeyse ePLND önerir.</p>
-      <p><strong>Yüksek riskli hastalarda dikkat</strong> — 150 yüksek riskli hastalık olgusunu içeren tek
-        merkezli bir seride (LNİ %26) her iki nomogramın da ayırt ediciliği düşük bulunmuştur: önerilen eşikte
-        duyarlılık yüksek (2017 için 0,97; 2019 için 0,96) ancak özgüllük çok düşüktür (0,14 ve 0,18; AUC 0,56
-        ve 0,57). Nomogramlar esas olarak orta riskli hastada gereksiz ePLND'yi elemek için tasarlanmıştır;
-        yüksek riskli hastalıkta karar tek başına bu skora dayandırılmamalıdır.
-        <em>Di Pierro GB, ve ark. Cancers 2023;15:1683.</em></p>
-      <p><strong>Katsayılar nasıl elde edildi</strong> — her iki makale de beta katsayılarını
-        "Supplementary Table 1"e bırakır; ana metinde yalnızca yuvarlanmış odds oranları vardır. Katsayılar bu
-        nedenle yayınlanmış nomogram şekillerinin geometrisinden geri hesaplandı: puan eksenleri β ile doğru
-        orantılı, risk ekseni ise logit'te doğrusaldır; bu iki ilişki hem her β'yı hem de sabit terimi verir.
-        Şekiller piksel düzeyinde ölçüldü (risk ekseni uyumu: maksimum sapma 0,003 logit).</p>
-
-      <div class="table-scroll">
-        <table class="coef-table">
-          <caption>Geri hesaplanan katsayıların yayınla karşılaştırması</caption>
-          <thead>
-            <tr><th>Model</th><th>Değişken</th><th>OR (şekilden)</th><th>OR (yayın)</th></tr>
-          </thead>
-          <tbody>
-            <tr><td rowspan="7">2017<br><span class="tbl-sub">Tablo 2, Model 1</span></td><td>PSA (ng/mL)</td><td>1,086</td><td>1,08</td></tr>
-            <tr><td>Klinik evre T2</td><td>2,337</td><td>2,27</td></tr>
-            <tr><td>Klinik evre T3</td><td>2,869</td><td>2,87</td></tr>
-            <tr><td>ISUP 3</td><td>9,647</td><td>9,5</td></tr>
-            <tr><td>ISUP 4-5</td><td>14,508</td><td>14,5</td></tr>
-            <tr><td>En yüksek dereceli kor %</td><td>1,027</td><td>1,02</td></tr>
-            <tr><td>Daha düşük dereceli kor %</td><td>1,014</td><td>1,01</td></tr>
-            <tr><td rowspan="6">2019<br><span class="tbl-sub">Tablo 2, Model 5</span></td><td>PSA (ng/mL)</td><td>1,043</td><td>1,04</td></tr>
-            <tr><td>mpMR ekstrakapsüler yayılım</td><td>3,392</td><td>3,39</td></tr>
-            <tr><td>mpMR seminal vezikül invazyonu</td><td>4,336</td><td>4,36</td></tr>
-            <tr><td>ISUP 3</td><td>3,333</td><td>3,33</td></tr>
-            <tr><td>ISUP 4-5</td><td>6,085</td><td>6,08</td></tr>
-            <tr><td>Lezyon çapı (mm)</td><td>1,032</td><td>1,03</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <p>Sabit terim, katsayılardan bağımsız olarak da doğrulandı: makalelerin bildirdiği "%7 eşiğinin altında
-        kalan hasta oranı" (2017 için %69, 2019 için %57), kohort dağılımlarıyla yeniden üretildiğinde bu
-        modellerle %68 ve %57 çıkmaktadır.</p>
-
-      <p><strong>ISUP gruplandırması</strong> — her iki yayın da derece gruplarını 1-2 / 3 / 4-5 olarak
-        kategorize etmiştir. Bu nedenle ISUP 1 ile 2, ve ISUP 4 ile 5 aynı riski verir; bu modelin kendi
-        tercihidir, hesaplama hatası değildir.</p>
-
-      <p class="calib-note">Lojistik regresyon katsayıları <code>app.js</code> içinde tek bir yerde
-        (<code>MODELS</code> nesnesi) tanımlıdır. Denetim için
-        <code>tools/reconstruct_nomogram.py</code> katsayıları şekillerden yeniden türetip
-        <code>app.js</code> ile karşılaştırır; <a href="tests/">tests/</a> sayfası ise uygulamayı
-        gerçek arayüz üzerinden sınar.</p>
-    </div>
-  </details>
 
   <p class="disclaimer">
-    <strong>Yalnızca sağlık profesyonelleri içindir.</strong> Bu araç istatistiksel bir tahmin sunar; klinik
-    muhakemenin, orijinal yayınların veya kurumsal protokollerin yerine geçmez. Hiçbir hasta verisi
-    gönderilmez veya saklanmaz — tüm hesaplamalar tarayıcınızda yerel olarak yapılır.
+    <strong>Yalnızca sağlık profesyonelleri içindir.</strong> Bu araç istatistiksel bir tahmin sunar;
+    klinik muhakemenin, orijinal yayınların veya kurumsal protokollerin yerine geçmez. Hiçbir hasta
+    verisi gönderilmez veya saklanmaz — tüm hesaplamalar tarayıcınızda yerel olarak yapılır.
   </p>
 </main>
 
 <footer class="app-footer">
-  <div class="wrap">
+  <div class="shell footer-in">
     <p>Çevrimdışı çalışır · Üyelik yok · Takip yok</p>
-    <p class="ver">s3.3.0</p>
+    <p class="ver">s4.0.0</p>
   </div>
 </footer>
+
+<button class="minibar" id="minibar" type="button" hidden>
+  <span class="minibar-key">LNİ riski</span>
+  <span class="minibar-val"><span class="pct" aria-hidden="true">%</span><span id="miniValue">0,0</span></span>
+  <span class="minibar-note" id="miniNote"></span>
+</button>
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
