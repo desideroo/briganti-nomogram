@@ -540,11 +540,14 @@ code {
 
 .field + .field { margin-top: 19px; }
 
+/* Uzun alan etiketi + "Kor sayısından hesapla" dar ekranda yan yana sığmaz;
+   sarmalayınca düğme etiketi sıkıştırmak yerine altına iner. */
 .label-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 2px 12px;
 }
 
 .field label,
