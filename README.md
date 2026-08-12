@@ -9,7 +9,7 @@ gönderilmez.
 | Dosya | İçerik |
 | --- | --- |
 | `index.html` | Tek sayfa uygulama: sekmeler, iki form, sonuç paneli |
-| `styles.css` | Mobil öncelikli tasarım, açık + koyu tema. Tasarım ilkesi: doygun renk yalnızca karara ayrılmıştır (eşik altı yeşil / eşik üstü kırmızı); arayüzün geri kalanı nötr, sayısal değerler tabular monospace |
+| `styles.css` | Mobil öncelikli tasarım, açık + koyu tema. Kimlik "ölçü aleti": nötr-soğuk kâğıt zemin üzerinde saç teli çizgiler, sayfanın tek koyu yüzeyi olan okuma paneli. Doygun renk yalnızca karara ayrılmıştır (eşik altı nane / eşik üstü kehribar) ve yalnızca panelin içinde görünür; sayısal değerler tabular monospace |
 | `app.js` | Model katsayıları, canlı hesaplama, doğrulama, PWA kancaları |
 | `manifest.json` | "Ana ekrana ekle" için PWA tanımı |
 | `sw.js` | Service worker — uygulama kabuğunu önbelleğe alır |
@@ -128,22 +128,33 @@ python3 -m http.server 8123
 ```
 
 Sonra `http://localhost:8123/tests/` adresini açın. Test sayfası gerçek uygulamayı bir iframe içinde
-yükler ve 86 kontrol çalıştırır: katsayıların betiğin türettiği değerlerle birebir aynı olması,
+yükler ve 89 kontrol çalıştırır: katsayıların betiğin türettiği değerlerle birebir aynı olması,
 yayınlanmış odds oranlarıyla tutarlılık, elle doğrulanmış referans senaryolar, ISUP gruplandırması,
-cT evresi eşlemesi ve evre rehberi etkileşimi, %7 eşiği davranışı ve renk kodlaması, karar ölçeği,
-girdi aralıkları, kor yüzdesi hesaplayıcısı ve arayüz davranışı.
+cT evresi eşlemesi ve evre rehberi etkileşimi, %5 eşiği davranışı ve renk kodlaması, karar ölçeği
+(%5 kapısı ve %7 işaretçisinin CSS↔JS tutarlılığı), girdi aralıkları, kor yüzdesi hesaplayıcısı ve
+arayüz davranışı.
 (`file://` ile açmayın — iframe erişimi engellenir.)
 
-## Karar eşiği
+## Karar eşiği: %5 ve %7 aynı şey değildir
 
-EAU kılavuzlarına göre tahmini LNİ riski **%7 ve üzerindeyse** ePLND önerilir. Eşik, `app.js`
-içindeki `EAU_THRESHOLD` sabitidir.
+**%5 — EAU eşiği.** EAU-EANM-ESTRO-ESUR-ISUP-SIOG Prostat Kanseri kılavuzu, tahmini LNİ riski
+**%5'i aşan** hastalarda ePLND önerir; bu eşik kullanılan nomogram sürümünden (2012 / 2017 / 2019)
+bağımsız olarak aynıdır. Uygulamanın kararı (yeşil / kırmızı) buna göre verilir — `app.js`
+içindeki `EAU_THRESHOLD` sabiti.
+
+**%7 — Gandaglia ve ark.'nın kesme noktası.** EAU kılavuzuna ait *değildir*: nomogramların dışsal
+doğrulama ve karar eğrisi (DCA) analizlerinde önerilen alternatif bir kesme noktasıdır. Yayınların
+bildirdiği "eşik altında kalan hasta oranı" (2017 için %69, 2019 için %57) da bu noktaya göredir;
+`tools/reconstruct_nomogram.py` sabit terimi bu sayılarla sınadığı için betikteki %7 referansları
+kasıtlıdır. Arayüzde `ALT_THRESHOLD` sabiti, karar ölçeğindeki ikincil kesikli işaretçi
+(`.gauge-alt`) ve bir dipnot olarak durur; karara girmez.
 
 Sonuç panelindeki karar ölçeği %0–20 aralığını gösterir (`GAUGE_MAX`): klinik kararın tamamı bu
-aralıkta verilir, %20 üstü zaten tartışmasız ePLND'dir. Ölçeği burada bitirmek %7 kapısını çubuğun
-%35'ine taşır ve eşik civarındaki birkaç puanlık farkı gözle ayırt edilebilir kılar. Kapının CSS'teki
-konumu (`.gauge-gate`) ile `GAUGE_MAX` arasındaki tutarlılık test paketinde sınanır — biri diğerinden
-habersiz değişirse test kırmızıya döner.
+aralıkta verilir, %20 üstü zaten tartışmasız ePLND'dir. Ölçeği burada bitirmek %5 kapısını çubuğun
+%25'ine, %7 işaretçisini %35'ine taşır ve eşik civarındaki birkaç puanlık farkı gözle ayırt
+edilebilir kılar. Her iki işaretin CSS'teki konumu (`.gauge-gate`, `.gauge-alt`) ile JS'teki
+sabitler arasındaki tutarlılık test paketinde sınanır — biri diğerinden habersiz değişirse test
+kırmızıya döner.
 
 Yüksek riskli hastalıkla sınırlı kohortlarda nomogramların ayırt ediciliği düşüktür: 150 yüksek riskli
 olguluk tek merkezli seride (LNİ %26) önerilen eşikte duyarlılık 0,97 (2017) ve 0,96 (2019), özgüllük

@@ -205,9 +205,12 @@ function run(win, doc) {
   check('2019: cT3a < cT3b = cT4', s19[2] < s19[3] && s19[3] === s19[4],
         s19.slice(2).map(function (v) { return v.toFixed(2); }).join(' / '));
 
-  /* 5 — EAU eşiği davranışı */
-  group('EAU %7 eşiği');
-  check('eşik sabiti 7', B.EAU_THRESHOLD === 7, String(B.EAU_THRESHOLD));
+  /* 5 — EAU eşiği davranışı.
+     %5 EAU'nun eşiğidir (kılavuz), %7 Gandaglia ve ark.'nın doğrulama/DCA
+     analizlerinde önerdiği alternatif kesme noktasıdır — karara girmez. */
+  group('EAU %5 eşiği (ve alternatif %7 kesme noktası)');
+  check('EAU eşik sabiti 5', B.EAU_THRESHOLD === 5, String(B.EAU_THRESHOLD));
+  check('alternatif kesme noktası sabiti 7', B.ALT_THRESHOLD === 7, String(B.ALT_THRESHOLD));
 
   var setVal = function (id, v) {
     var el = doc.getElementById(id);
@@ -234,6 +237,15 @@ function run(win, doc) {
         doc.getElementById('riskValue').textContent + '% · ' + result.className);
   check('eşik üstü mesajı', /ePLND\) önerilir/.test(doc.getElementById('verdict').textContent),
         doc.getElementById('verdict').textContent);
+
+  /* %5-%7 bandı — iki eşiğin ayrıştığı yer. Karar EAU eşiğine göre verilmeli:
+     bu hasta %7'nin altında olsa da ePLND önerilir. */
+  setVal('psa-2017', 10); setSel('stage-2017', 'cT2'); setSel('gleason-2017', '1');
+  setVal('coreshigh-2017', 40); setVal('coreslow-2017', 20);
+  var band = parseFloat(doc.getElementById('riskValue').textContent.replace(',', '.'));
+  check('%5-%7 bandı EAU eşiğine göre kırmızı',
+        band >= B.EAU_THRESHOLD && band < B.ALT_THRESHOLD && result.classList.contains('is-risk'),
+        band + '% · ' + result.className);
 
   /* 5a — evre rehberi etkileşimi */
   group('cT evre rehberi (dokunarak seçim)');
@@ -309,9 +321,10 @@ function run(win, doc) {
   check('4 / 12 → 33.3', doc.getElementById('cores-2019').value === '33.3',
         doc.getElementById('cores-2019').value);
 
-  /* 8 — karar ölçeği: CSS'teki %7 kapısı JS'teki ölçek üst sınırına bağlıdır.
-     Biri diğerinden habersiz değişirse gösterge sessizce yanlış yer gösterir. */
-  group('Karar ölçeği (%7 kapısı)');
+  /* 8 — karar ölçeği: CSS'teki %5 kapısı ve %7 işaretçisi JS'teki sabitlere
+     bağlıdır. Biri diğerinden habersiz değişirse gösterge sessizce yanlış yer
+     gösterir. */
+  group('Karar ölçeği (%5 kapısı, %7 işaretçisi)');
   doc.getElementById('tab-2017').click();
   setVal('psa-2017', 6); setSel('stage-2017', 'cT1'); setSel('gleason-2017', '1');
   setVal('coreshigh-2017', 20); setVal('coreslow-2017', 10);
@@ -320,8 +333,15 @@ function run(win, doc) {
   var gateBox = doc.querySelector('#gauge .gauge-gate').getBoundingClientRect();
   var gateFrac = (gateBox.left - trackBox.left) / trackBox.width;
   var wantFrac = B.EAU_THRESHOLD / B.GAUGE_MAX;
-  check('CSS kapı konumu = eşik / ölçek üst sınırı', near(gateFrac, wantFrac, 0.01),
+  check('CSS kapı konumu = EAU eşiği / ölçek üst sınırı', near(gateFrac, wantFrac, 0.01),
         'CSS %' + (gateFrac * 100).toFixed(1) + ' vs JS %' + (wantFrac * 100).toFixed(1));
+
+  var altBox = doc.querySelector('#gauge .gauge-alt').getBoundingClientRect();
+  var altFrac = (altBox.left - trackBox.left) / trackBox.width;
+  var wantAlt = B.ALT_THRESHOLD / B.GAUGE_MAX;
+  check('CSS %7 işaretçisi = alternatif kesme noktası / ölçek üst sınırı',
+        near(altFrac, wantAlt, 0.01),
+        'CSS %' + (altFrac * 100).toFixed(1) + ' vs JS %' + (wantAlt * 100).toFixed(1));
 
   var refRisk = B.computeRisk('2017', {psa: 6, stage: 0, gleason: 1, coreshigh: 20, coreslow: 10});
   check('dolgu genişliği riskle orantılı',

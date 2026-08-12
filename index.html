@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Prostat kanserinde lenf nodu invazyonu (LNİ) riski için ücretsiz Briganti 2017 ve 2019 nomogram hesaplayıcısı. Üyelik yok, çevrimdışı çalışır.">
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0b0f15" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#e9ecee" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12171a" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Briganti LNİ">
@@ -22,19 +22,25 @@
 <header class="topbar">
   <div class="shell topbar-in">
     <span class="mark" aria-hidden="true">
-      <svg viewBox="0 0 28 28" focusable="false">
-        <g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-          <path d="M3 9h22M3 20h22"/>
-          <path d="M8 9V6M14 9V6M20 9V6" opacity=".5"/>
-          <path d="M8 20v3M14 20v3M20 20v3" opacity=".5"/>
+      <!-- Nomogram glifi: puan eksenleri ve üzerlerinden geçen okuma çizgisi.
+           Aynı okuma çizgisi sonuç panelindeki cetvelde tekrarlanır. -->
+      <svg viewBox="0 0 32 32" focusable="false">
+        <g fill="none" stroke="currentColor">
+          <g stroke-width="1.7" stroke-linecap="square">
+            <path d="M4 8h24M4 16h24M4 24h24"/>
+          </g>
+          <g stroke-width="1" opacity=".38">
+            <path d="M9 6v4M15 6v4M21 6v4M27 6v4"/>
+            <path d="M9 22v4M15 22v4M21 22v4M27 22v4"/>
+          </g>
         </g>
-        <circle cx="18" cy="9" r="3.1" fill="currentColor"/>
-        <circle cx="10" cy="20" r="3.1" fill="currentColor"/>
+        <path class="mark-read" d="M19 2.5v27" fill="none" stroke-width="1.7"/>
+        <circle class="mark-slug" cx="19" cy="16" r="2.7"/>
       </svg>
     </span>
     <div class="titles">
-      <h1>Briganti Nomogramı</h1>
-      <p>Prostat kanserinde lenf nodu invazyonu riski</p>
+      <h1>Briganti nomogramı</h1>
+      <p class="eyebrow">Lenf nodu invazyonu riski · ePLND kararı</p>
     </div>
     <button id="installBtn" class="btn-quiet" type="button" hidden>Yükle</button>
   </div>
@@ -42,22 +48,48 @@
 
 <main class="shell">
 
+  <!-- =============================== EŞİK KURALI ===============================
+       Sayfanın tek işi bu kuralı uygulamak; kuralı önce olduğu gibi gösteriyoruz.
+       Çatal, kararın gerçekten iki dallı olduğunu anlatır — süs değildir.
+       ======================================================================== -->
+  <section class="thesis" aria-labelledby="thesis-h">
+    <h2 class="thesis-h" id="thesis-h">Karar tek bir eşikte verilir</h2>
+    <div class="gate">
+      <p class="gate-num"><span class="gate-pct">%</span>5</p>
+      <ul class="gate-fork">
+        <li class="fork-arm is-under">
+          <span class="fork-cond">altında</span>
+          <span class="fork-act">ePLND atlanabilir</span>
+        </li>
+        <li class="fork-arm is-over">
+          <span class="fork-cond">ve üzerinde</span>
+          <span class="fork-act">ePLND önerilir</span>
+        </li>
+      </ul>
+    </div>
+    <p class="thesis-note">
+      EAU kılavuzlarının genişletilmiş pelvik lenf nodu diseksiyonu (ePLND) eşiği; kullanılan
+      nomogram sürümünden bağımsızdır. Aşağıdaki iki nomogram tahmini LNİ riskini hesaplar.
+      <span class="thesis-alt">Gandaglia ve ark. dışsal doğrulama ve karar eğrisi analizlerinde
+      alternatif olarak <strong>%7</strong> kesme noktasını önerir; bu bir EAU eşiği değildir.</span>
+    </p>
+  </section>
+
   <!-- ============================= KAYNAK ŞERİDİ ============================= -->
   <div class="provenance" role="note">
     <p class="prov-line">
       <span class="prov-tag">Kaynak ve denetim</span>
-      Katsayılar yayınlanmış nomogram şekillerinden geri hesaplandı; makalelerin odds oranlarıyla
-      ve bildirilen eşik altı hasta oranıyla doğrulandı. Eşik civarındaki belirsizlik
-      <strong>0,1 puanın altında</strong>. Yöntemin tamamı aşağıda, <em>Model ayrıntıları</em>
-      bölümünde.
+      Katsayılar yayınlanmış nomogram şekillerinden geri hesaplandı; makalelerin odds oranları ve
+      bildirdikleri %7 altı hasta oranıyla doğrulandı. Eşik civarındaki belirsizlik
+      <strong>0,1 puanın altında</strong>.
     </p>
     <p class="prov-links">
       <a href="https://github.com/desideroo/briganti-nomogram/blob/main/tools/reconstruct_nomogram.py" target="_blank" rel="noopener">Denetim betiği</a>
       <a href="tests/" target="_blank" rel="noopener">Otomatik testler</a>
       <a href="https://github.com/desideroo/briganti-nomogram" target="_blank" rel="noopener">Kaynak kod</a>
-      <span class="prov-note">CE işaretli tıbbi cihaz değildir; resmî uygulama
+      <span class="prov-note">CE işaretli tıbbi cihaz değildir. Resmî uygulama:
         <a href="https://www.evidencio.com/models/show/1555?v=3.0" target="_blank" rel="noopener">Evidencio</a>
-        üzerinde ücretlidir.</span>
+        (ücretli).</span>
     </p>
   </div>
 
@@ -84,20 +116,20 @@
           </p>
 
           <div class="group">
-            <h2 class="group-label">Klinik veriler</h2>
+            <h2 class="group-label"><span>Klinik veriler</span></h2>
 
             <div class="field">
               <label for="psa-2017">Ameliyat öncesi PSA<span class="sr-only"> (ng/mL)</span></label>
               <div class="control">
                 <input type="number" id="psa-2017" name="psa" inputmode="decimal" step="0.01" min="0" max="50" placeholder="8,4">
-                <span class="suffix" aria-hidden="true">ng/mL</span>
+                <span class="affix" aria-hidden="true">ng/mL</span>
               </div>
               <p class="error" data-error-for="psa-2017"></p>
             </div>
 
             <div class="field">
               <label for="stage-2017">Klinik T evresi</label>
-              <div class="control">
+              <div class="control is-select is-narrow">
                 <select id="stage-2017" name="stage">
                   <option value="cT1">cT1</option>
                   <option value="cT2">cT2</option>
@@ -188,11 +220,11 @@
           </div>
 
           <div class="group">
-            <h2 class="group-label">Biyopsi bulguları</h2>
+            <h2 class="group-label"><span>Biyopsi bulguları</span></h2>
 
             <div class="field">
               <label for="gleason-2017">Biyopsi Gleason skoru / ISUP derece grubu</label>
-              <div class="control">
+              <div class="control is-select">
                 <select id="gleason-2017" name="gleason">
                   <option value="1">3 + 3 (ISUP Derece Grubu 1)</option>
                   <option value="2">3 + 4 (ISUP Derece Grubu 2)</option>
@@ -210,9 +242,9 @@
                 <label for="coreshigh-2017">En yüksek dereceli kanser içeren kor<span class="sr-only"> yüzdesi (%)</span></label>
                 <button class="link-btn" type="button" data-toggle-helper="helper-coreshigh-2017" aria-expanded="false">kor sayısından</button>
               </div>
-              <div class="control">
+              <div class="control is-pct">
+                <span class="affix is-lead" aria-hidden="true">%</span>
                 <input type="number" id="coreshigh-2017" name="coreshigh" inputmode="decimal" step="1" min="0" max="100" placeholder="40">
-                <span class="suffix" aria-hidden="true">%</span>
               </div>
               <div class="mini-calc" id="helper-coreshigh-2017" data-target="coreshigh-2017" hidden>
                 <div>
@@ -234,9 +266,9 @@
                 <label for="coreslow-2017">Daha düşük dereceli kanser içeren kor<span class="sr-only"> yüzdesi (%)</span></label>
                 <button class="link-btn" type="button" data-toggle-helper="helper-coreslow-2017" aria-expanded="false">kor sayısından</button>
               </div>
-              <div class="control">
+              <div class="control is-pct">
+                <span class="affix is-lead" aria-hidden="true">%</span>
                 <input type="number" id="coreslow-2017" name="coreslow" inputmode="decimal" step="1" min="0" max="90" placeholder="10">
-                <span class="suffix" aria-hidden="true">%</span>
               </div>
               <div class="mini-calc" id="helper-coreslow-2017" data-target="coreslow-2017" hidden>
                 <div>
@@ -267,20 +299,20 @@
           </p>
 
           <div class="group">
-            <h2 class="group-label">Klinik ve mpMR verileri</h2>
+            <h2 class="group-label"><span>Klinik ve mpMR verileri</span></h2>
 
             <div class="field">
               <label for="psa-2019">Ameliyat öncesi PSA<span class="sr-only"> (ng/mL)</span></label>
               <div class="control">
                 <input type="number" id="psa-2019" name="psa" inputmode="decimal" step="0.01" min="0" max="80" placeholder="8,4">
-                <span class="suffix" aria-hidden="true">ng/mL</span>
+                <span class="affix" aria-hidden="true">ng/mL</span>
               </div>
               <p class="error" data-error-for="psa-2019"></p>
             </div>
 
             <div class="field">
               <label for="stage-2019">Klinik T evresi (mpMR'ye göre)</label>
-              <div class="control">
+              <div class="control is-select is-narrow">
                 <select id="stage-2019" name="stage">
                   <option value="cT1">cT1</option>
                   <option value="cT2">cT2</option>
@@ -373,7 +405,7 @@
               <label for="lesion-2019">mpMR'de maksimum lezyon çapı<span class="sr-only"> (mm)</span></label>
               <div class="control">
                 <input type="number" id="lesion-2019" name="lesion" inputmode="decimal" step="0.1" min="0" max="45" placeholder="14">
-                <span class="suffix" aria-hidden="true">mm</span>
+                <span class="affix" aria-hidden="true">mm</span>
               </div>
               <p class="note">PI-RADS skoru en yüksek olan lezyon; eşitlik varsa en büyük çaplı olan.</p>
               <p class="error" data-error-for="lesion-2019"></p>
@@ -381,11 +413,11 @@
           </div>
 
           <div class="group">
-            <h2 class="group-label">Biyopsi bulguları</h2>
+            <h2 class="group-label"><span>Biyopsi bulguları</span></h2>
 
             <div class="field">
               <label for="gleason-2019">MR-hedefli biyopside Gleason skoru / ISUP derece grubu</label>
-              <div class="control">
+              <div class="control is-select">
                 <select id="gleason-2019" name="gleason">
                   <option value="1">3 + 3 (ISUP Derece Grubu 1)</option>
                   <option value="2">3 + 4 (ISUP Derece Grubu 2)</option>
@@ -403,9 +435,9 @@
                 <label for="cores-2019">Sistematik biyopside klinik anlamlı kanserli kor<span class="sr-only"> yüzdesi (%)</span></label>
                 <button class="link-btn" type="button" data-toggle-helper="helper-cores-2019" aria-expanded="false">kor sayısından</button>
               </div>
-              <div class="control">
+              <div class="control is-pct">
+                <span class="affix is-lead" aria-hidden="true">%</span>
                 <input type="number" id="cores-2019" name="cores" inputmode="decimal" step="1" min="0" max="100" placeholder="30">
-                <span class="suffix" aria-hidden="true">%</span>
               </div>
               <div class="mini-calc" id="helper-cores-2019" data-target="cores-2019" hidden>
                 <div>
@@ -440,8 +472,16 @@
             biyopside ISUP derece grubu ve sistematik biyopside klinik anlamlı kanser içeren kor
             yüzdesi. <em>PI-RADS skoru ve hedefli biyopsideki maksimum tümör uzunluğu bu modelin
             bağımsız değişkenleri değildir</em>; bu nedenle forma alınmamıştır.</p>
-          <p><strong>Eşik</strong> — EAU kılavuzları, tahmini LNİ riski %7 ve üzerindeyse ePLND
-            önerir.</p>
+          <h3>Hangi eşik, kimin eşiği</h3>
+          <p><strong>%5 — EAU eşiği.</strong> EAU-EANM-ESTRO-ESUR-ISUP-SIOG Prostat Kanseri
+            kılavuzu, tahmini LNİ riski %5'i aşan hastalarda ePLND önerir. Bu eşik, kullanılan
+            nomogram sürümünden (2012 / 2017 / 2019) bağımsız olarak aynıdır. Bu sayfadaki karar
+            (yeşil / kırmızı) bu eşiğe göre verilir.</p>
+          <p><strong>%7 — Gandaglia ve ark.'nın kesme noktası.</strong> EAU kılavuzuna ait
+            değildir; nomogramların dışsal doğrulama ve karar eğrisi (DCA) analizlerinde önerilen
+            alternatif bir kesme noktasıdır. Yayınların bildirdiği “eşik altında kalan hasta oranı”
+            değerleri de bu noktaya göredir. Arayüzde karar ölçeğinde ikincil bir işaretçi olarak
+            gösterilir, karara girmez.</p>
 
           <h3>Yüksek riskli hastalarda dikkat</h3>
           <p>150 yüksek riskli hastalık olgusunu içeren tek merkezli bir seride (LNİ %26) her iki
@@ -502,12 +542,15 @@
       </details>
     </div>
 
-    <!-- ================================ SONUÇ ================================ -->
+    <!-- ================================ SONUÇ ================================
+         Sayfanın tek koyu yüzeyi: okuma paneli. Renk yalnızca burada karara
+         ayrılmıştır; kâğıt tarafı baştan sona nötrdür.
+         ==================================================================== -->
     <aside class="col-side">
-      <section class="result card" id="result" aria-live="polite">
+      <section class="result" id="result" aria-live="polite">
         <div class="result-empty" id="resultEmpty">
           <p class="result-label">Tahmini LNİ riski</p>
-          <p class="result-placeholder">Sonucu görmek için tüm alanları doldurun.</p>
+          <p class="result-placeholder">Değerleri girin; sonuç siz yazdıkça burada okunur.</p>
           <ul class="missing" id="missingList"></ul>
         </div>
 
@@ -519,13 +562,19 @@
 
           <p class="result-value"><span class="pct" aria-hidden="true">%</span><span id="riskValue">0,0</span></p>
 
-          <div class="gauge" role="img" id="gauge" aria-label="Riskin %7 EAU eşiğine göre konumu">
+          <div class="gauge" role="img" id="gauge" aria-label="Riskin %5 EAU eşiğine göre konumu">
             <div class="gauge-bar">
               <div class="gauge-track"><div class="gauge-fill" id="gaugeFill"></div></div>
-              <div class="gauge-gate"><span>%7</span></div>
+              <div class="gauge-gate"><span>%5</span></div>
+              <div class="gauge-alt"><span>%7</span></div>
             </div>
-            <div class="gauge-scale"><span>%0</span><span>%10</span><span>%20+</span></div>
+            <div class="gauge-scale"><span>%0</span><span>%20+</span></div>
           </div>
+
+          <p class="gauge-foot">
+            <span class="gauge-foot-key">%5</span> EAU eşiği ·
+            <span class="gauge-foot-key is-alt">%7</span> Gandaglia ve ark. (alternatif)
+          </p>
 
           <p class="verdict" id="verdict"></p>
 
@@ -547,7 +596,7 @@
 <footer class="app-footer">
   <div class="shell footer-in">
     <p>Çevrimdışı çalışır · Üyelik yok · Takip yok</p>
-    <p class="ver">s4.0.0</p>
+    <p class="ver">s5.0.0</p>
   </div>
 </footer>
 

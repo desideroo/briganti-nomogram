@@ -120,17 +120,34 @@
     }
   };
 
-  var EAU_THRESHOLD = 7;              // %  — EAU kılavuzlarının ePLND eşiği
+  /* ------------------------------ KARAR EŞİĞİ ------------------------------
+     İKİ AYRI SAYI VARDIR, KARIŞTIRMAYIN:
+
+     %5 — EAU'nun kendi eşiği. EAU-EANM-ESTRO-ESUR-ISUP-SIOG Prostat Kanseri
+          kılavuzu, tahmini LNİ riski %5'i aşan hastalarda ePLND önerir. Bu eşik
+          hangi nomogram sürümü (2012 / 2017 / 2019) kullanılırsa kullanılsın
+          değişmez. Uygulamanın kararı buna göre verilir.
+
+     %7 — EAU'nun değil, Gandaglia ve ark.'nın sayısı. Dışsal doğrulama ve karar
+          eğrisi (DCA) analizlerinde önerdikleri alternatif kesme noktasıdır;
+          yayınların "eşik altında kalan hasta oranı" bildirimleri de bu noktaya
+          göredir (bkz. tools/reconstruct_nomogram.py sabit terim sınaması).
+          Arayüzde yalnızca ikincil bir işaretçi ve dipnot olarak durur.
+     ---------------------------------------------------------------------- */
+
+  var EAU_THRESHOLD = 5;              // %  — EAU kılavuzlarının ePLND eşiği
+  var ALT_THRESHOLD = 7;              // %  — Gandaglia ve ark.'nın alternatif kesme noktası
 
   // Karar ölçeğinin üst sınırı. Klinik kararın tamamı %0-20 aralığında verilir;
-  // %20 üstü zaten tartışmasız ePLND'dir. Ölçeği burada bitirmek %7 kapısını
-  // genişliğin %35'ine taşır (styles.css: .gauge-gate) ve eşik civarındaki
-  // birkaç puanlık farkı gözle ayırt edilebilir kılar.
+  // %20 üstü zaten tartışmasız ePLND'dir. Ölçeği burada bitirmek %5 kapısını
+  // genişliğin %25'ine, %7 işaretçisini %35'ine taşır (styles.css: .gauge-gate
+  // ve .gauge-alt) ve eşik civarındaki birkaç puanlık farkı gözle ayırt
+  // edilebilir kılar.
   var GAUGE_MAX = 20;
 
   var MESSAGES = {
-    safe: 'Risk %7 eşiğinin altında. ePLND güvenle atlanabilir.',
-    risk: 'Risk %7 veya üzerinde. Genişletilmiş pelvik lenf nodu diseksiyonu (ePLND) önerilir.'
+    safe: 'Risk %5 eşiğinin altında. ePLND güvenle atlanabilir.',
+    risk: 'Risk %5 veya üzerinde. Genişletilmiş pelvik lenf nodu diseksiyonu (ePLND) önerilir.'
   };
 
   // Yapışkan mini şerit için kısaltılmış karar.
@@ -299,8 +316,9 @@
 
     gaugeFillEl.style.width = Math.min(100, (risk / GAUGE_MAX) * 100) + '%';
     gaugeEl.setAttribute('aria-label',
-      'Tahmini risk yüzde ' + shown + ', %7 EAU eşiğinin ' +
-      (isRisk ? 'üzerinde veya eşiğinde' : 'altında') + '.');
+      'Tahmini risk yüzde ' + shown + ', %5 EAU eşiğinin ' +
+      (isRisk ? 'üzerinde veya eşiğinde' : 'altında') + '; alternatif %7 kesme noktasının ' +
+      (risk >= ALT_THRESHOLD ? 'üzerinde veya eşiğinde' : 'altında') + '.');
 
     lastResult = { key: key, risk: risk, shown: shown, isRisk: isRisk };
     updateMinibar(lastResult);
@@ -495,6 +513,13 @@
     var lines = [model.label + ' nomogramı — tahmini LNİ riski: %' + lastResult.shown];
 
     lines.push(lastResult.isRisk ? MESSAGES.risk : MESSAGES.safe);
+    // İki eşiğin ayrıştığı bant tam da klinik olarak tartışmalı olan yerdir;
+    // yalnızca oraya düşen sonuçlarda not eklenir.
+    if (lastResult.risk >= EAU_THRESHOLD && lastResult.risk < ALT_THRESHOLD) {
+      lines.push('Not: Risk %' + EAU_THRESHOLD + '-%' + ALT_THRESHOLD + ' bandında. ' +
+        'Gandaglia ve ark.\'nın doğrulama çalışmalarında önerdiği alternatif %' + ALT_THRESHOLD +
+        ' kesme noktasına göre eşik altında kalır.');
+    }
     lines.push('');
     Object.keys(model.selects).forEach(function (name) {
       lines.push(model.selects[name] + ': ' + selectedText(name + '-' + key));
@@ -581,6 +606,7 @@
     MODELS: MODELS,
     computeRisk: computeRisk,
     EAU_THRESHOLD: EAU_THRESHOLD,
+    ALT_THRESHOLD: ALT_THRESHOLD,
     GAUGE_MAX: GAUGE_MAX
   };
 })();

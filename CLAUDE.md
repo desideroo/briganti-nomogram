@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Prostat kanserinde **lenf nodu invazyonu (LNİ)** riskini hesaplayan tek sayfalık web uygulaması:
 Briganti 2017 (sistematik biyopsi) ve Briganti 2019 (mpMR-hedefli biyopsi) nomogramları. Üyeliksiz,
-sunucusuz, çevrimdışı çalışır. Hedef kullanıcı, EAU'nun **%7 eşiğine** göre genişletilmiş pelvik lenf
+sunucusuz, çevrimdışı çalışır. Hedef kullanıcı, EAU'nun **%5 eşiğine** göre genişletilmiş pelvik lenf
 nodu diseksiyonu (ePLND) kararı veren ürologtur.
 
 Yayında: https://desideroo.github.io/briganti-nomogram/
@@ -26,7 +26,7 @@ python3 -m http.server 8123        # .claude/launch.json'daki "briganti" yapıla
 
 | İş | Komut / adres |
 | --- | --- |
-| Testler | `http://localhost:8123/tests/` — 86 kontrol, tarayıcıda çalışır |
+| Testler | `http://localhost:8123/tests/` — 89 kontrol, tarayıcıda çalışır |
 | Katsayı denetimi | `python3 tools/reconstruct_nomogram.py` — uyuşmazlıkta çıkış kodu 1 |
 | Şekilleri PDF'ten yeniden ölç | `python3 tools/reconstruct_nomogram.py --pdf-2017 <yol> --pdf-2019 <yol>` |
 | Sözdizimi kontrolü | `node --check app.js` |
@@ -92,7 +92,8 @@ adlandırmak testleri kırar. Sarmalayıcı `div` eklemek serbesttir; şu çapal
   `resultModel`, `missingList`, `minibar`, `miniValue`, `miniNote`, `copyBtn`, `toast`.
 - **Öznitelikler**: `data-error-for`, `data-reset`, `data-toggle-helper`, `data-target`,
   `data-role="pos|tot|def"`, `data-model`, `data-stage`.
-- **Sınıflar**: `.ct-rung` / `.ct-node` / `.ct-sub` / `.ct-text`, durum sınıfları
+- **Sınıflar**: `.ct-rung` / `.ct-node` / `.ct-sub` / `.ct-text`, gösterge parçaları
+  `.gauge-track` / `.gauge-gate` / `.gauge-alt`, durum sınıfları
   `.is-active` / `.is-safe` / `.is-risk` / `.is-shown` / `.is-tucked`.
 - `#stagecur-<model>` **yalnızca tanım metnini** içermelidir: bir test onun tüm `textContent`'ini
   merdivendeki `.ct-text` ile karşılaştırır. İçine etiket eklemeyin (görsel önek gerekirse CSS
@@ -100,9 +101,11 @@ adlandırmak testleri kırar. Sarmalayıcı `div` eklemek serbesttir; şu çapal
 
 ### CSS ↔ JS bağlantıları
 
-- `GAUGE_MAX` (`app.js`) ile `.gauge-gate { left }` (`styles.css`) birbirine bağlıdır: kapının
-  konumu `EAU_THRESHOLD / GAUGE_MAX` olmalıdır. Tutarlılık test paketinde sınanır — biri diğerinden
-  habersiz değişirse gösterge sessizce yanlış yer göstermek yerine test kırmızıya döner.
+- `GAUGE_MAX` (`app.js`) ile göstergedeki iki işaretin CSS konumu birbirine bağlıdır:
+  `.gauge-gate { left }` = `EAU_THRESHOLD / GAUGE_MAX` (5/20 = %25) ve
+  `.gauge-alt { left }` = `ALT_THRESHOLD / GAUGE_MAX` (7/20 = %35). Tutarlılık test paketinde
+  sınanır — biri diğerinden habersiz değişirse gösterge sessizce yanlış yer göstermek yerine test
+  kırmızıya döner.
 - `styles.css` başındaki genel `[hidden] { display: none !important; }` kuralı **gereklidir**.
   `.mini-calc` ve `.minibar` gibi bileşenler `display` atadığı için, bu kural olmadan yazar stili
   tarayıcının `hidden` davranışını ezer ve öğe gizlenmez. (Bu hata bir kez gerçekten oluştu: kor
@@ -124,6 +127,20 @@ grubu, sistematik biyopside klinik anlamlı kanser (ISUP ≥ 2) içeren kor yüz
 `PI-RADS skoru` ve `hedefli biyopside maksimum tümör uzunluğu` bu modelin bağımsız değişkenleri
 **değildir**; bu yüzden forma alınmamıştır.
 
+**Karar eşiği — %5 ile %7'yi karıştırmayın.** Projenin bir sürümünde tam olarak bu hata yapılmıştı:
+%7 "EAU eşiği" diye sunuluyordu.
+
+- **%5 = EAU eşiği.** EAU-EANM-ESTRO-ESUR-ISUP-SIOG Prostat Kanseri kılavuzu, tahmini LNİ riski
+  %5'i aşan hastalarda ePLND önerir. **Kullanılan nomogram sürümünden (2012 / 2017 / 2019)
+  bağımsızdır.** Uygulamanın kararı budur: `app.js` → `EAU_THRESHOLD`.
+- **%7 = Gandaglia ve ark.'nın kesme noktası, EAU'nun değil.** Nomogramların dışsal doğrulama ve
+  karar eğrisi (DCA) analizlerinde önerilen alternatiftir. `app.js` → `ALT_THRESHOLD`; arayüzde
+  yalnızca göstergedeki kesikli ikincil işaretçi (`.gauge-alt`), bir dipnot (`.gauge-foot`) ve
+  giriş kuralının altındaki not (`.thesis-alt`) olarak görünür — **karara girmez.**
+- `tools/reconstruct_nomogram.py` içindeki %7 referansları **kasıtlıdır ve değişmemelidir**:
+  betik sabit terimi, yayınların kendi bildirdiği "%7 eşiği altında kalan hasta oranı"
+  (2017: %69, 2019: %57) ile sınar. Bu, EAU eşiğiyle ilgili değil, yayınla tutarlılık sınamasıdır.
+
 **ISUP gruplandırması** — her iki model de dereceleri 1-2 / 3 / 4-5 olarak kategorize eder. ISUP 1
 ile 2 aynı, ISUP 4 ile 5 aynı riski verir.
 
@@ -140,7 +157,7 @@ ikinci liste yalnızca mevcut tasarımın tercihidir ve serbestçe atılabilir.
 
 - **`text-transform: uppercase` kullanmayın.** Tarayıcı Türkçe "i" harfini "I" yapar ve
   "TAHMINI LNI" gibi yanlış yazım üretir. Bu bir estetik tercih değil, yazım hatası.
-- **Yüzde işareti sayının önüne yazılır** (%7 — `7%` değil).
+- **Yüzde işareti sayının önüne yazılır** (%5 — `5%` değil).
 - Açık ve koyu tema birlikte desteklenir (`prefers-color-scheme`); yeni renk eklerken ikisini de
   tanımlayın.
 - Dokunma hedefleri en az ~44 px; girdilerde `font-size: 16px` (iOS odakta yakınlaştırmasın).
@@ -150,17 +167,37 @@ ikinci liste yalnızca mevcut tasarımın tercihidir ve serbestçe atılabilir.
 
 ### Yalnızca mevcut tasarımın tercihi (değiştirilebilir)
 
-- Doygun rengin yalnızca karara (eşik altı yeşil / eşik üstü kırmızı) ayrılması, arayüzün geri
-  kalanının nötr çizilmesi. *Gerekçe:* kart, sekme ve başlık da renkliyken sonucun sinyali
-  zayıflıyordu. Yeni tasarım bunu başka yolla çözebilir; çözdüğünden emin olun.
+Mevcut kimlik **"ölçü aleti"**: sayfa iki malzemeden yapılıdır — *kâğıt* (kemik beyazı zemin, saç
+teli çizgiler, oyma bölüm etiketleri) ve *panel* (`.result`, sayfanın tek koyu yüzeyi).
+
+- **Sinyal tek yerde toplanır ama renkle değil, zemin/figür karşıtlığıyla.** Kâğıt tarafı baştan
+  sona nötrdür; doygun renk (eşik altı nane, eşik üstü kehribar) yalnızca koyu panelin içinde —
+  üst kenar şeridi, dev sayı, okuma çizgisi ve karar bloğunda — görünür. Koyu temada sayfa zaten
+  koyu olduğu için kâğıt katmanları yukarı çekilir, panel neredeyse siyah kalıp `--slab-edge`
+  kenarlığıyla çerçevelenir. Yeni bir tasarım sinyali başka yolla toplayabilir; topladığından
+  emin olun.
+- **Üç tipografik yüz, üç iş:** `--mono` ölçüm (sayılar, birimler, cT kodları, eksen etiketleri,
+  ürün adı), `--sans` arayüz (etiketler, açıklamalar, düğmeler), `--serif` literatür (atıflar,
+  kaynak şeridi, model ayrıntıları, feragat). Web fontu yoktur — uygulama çevrimdışı çalışır,
+  yığınlar sistem fontlarıdır.
+- **Okuma çizgisi imzası:** logodaki dikey çizgi (`.mark-read`), göstergedeki dolgunun ön kenarı
+  (`.gauge-fill::after`) ve %5 kapısı aynı jesttir. Cetvel oyma taksimatlıdır (her 1 puanda ince,
+  her 5 puanda belirgin çentik).
+- **Giriş kuralı çatalı** (`.gate` / `.gate-fork`): %5 ve iki dalı, kural uygulanmadan önce
+  gösterilir; yanındaki nane/kehribar kareler panelin renk kodunu önceden öğretir.
 - Sayısal değerlerin tabular monospace ile dizilmesi (PSA, yüzdeler, cT kodları, risk).
-- Geniş ekranda sağ sütunda yapışkan sonuç kartı + telefonda alttaki mini şerit.
-  *Tuzak:* yapışkanlık için sağ sütun satır yüksekliğine gerilmeli — kapsayıcıya
+- Yüzde alanlarında `%` girdinin **önünde** durur (`.affix.is-lead`); birim ekleri (ng/mL, mm)
+  arkasında.
+- Geniş ekranda sayfanın tamamı tek bir iki sütunlu ızgaradır (`main.shell`): solda giriş kuralı
+  ve form, sağda kaynak şeridi ile onun altında yapışkan okuma paneli — ikisi de `--side` genişliğinde.
+  Telefonda `main` bir flex sütuna döner ve kaynak şeridi `order` ile hesaplayıcının altına iner
+  (ilk ekran forma ait olsun diye); sonuç alttaki mini şeritte kalır.
+  *Tuzak:* yapışkanlık için sağ sütun satır yüksekliğine gerilmeli — `.layout`'a
   `align-items: start` eklemek sütunu içeriği kadar kısaltır ve kayacak alan bırakmaz.
 - Karar ölçeğinin %0–20'de bitmesi. Değiştirirseniz `GAUGE_MAX` ile kapının CSS'teki konumunu
   **birlikte** güncelleyin (test ikisinin tutarlılığını sınar).
-- cT evre rehberinin merdiven biçimi. Yapıyı (`.ct-rung` / `.ct-node` / `.ct-sub` / `.ct-text`)
-  koruyun, görünümü değiştirin.
+- cT evre rehberinin merdiven biçimi: omurga + basamak, etkin dalda omurga mürekkep mavisine döner.
+  Yapıyı (`.ct-rung` / `.ct-node` / `.ct-sub` / `.ct-text`) koruyun, görünümü değiştirin.
 
 ### Yeniden tasarım yaparken doğrulama
 
