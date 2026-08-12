@@ -1,110 +1,181 @@
-# Briganti Nomogram Calculator (2017 & 2019) - Project Specification
+# CLAUDE.md
 
-## Project Overview
-This project is a free, web-based clinical decision support tool designed for urologists to calculate the risk of Lymph Node Invasion (LNI) in prostate cancer patients using the **Briganti 2017** and **Briganti 2019 (MRI-targeted)** nomograms.
-
-The main goal is to provide an instant, frictionless, zero-login, and mobile-friendly alternative to paid platforms (like Evidencio), helping urologists decide whether to perform Extended Pelvic Lymph Node Dissection (ePLND) based on European Association of Urology (EAU) guidelines (7% risk threshold).
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ---
 
-## Core Features & Requirements
+Prostat kanserinde **lenf nodu invazyonu (LNİ)** riskini hesaplayan tek sayfalık web uygulaması:
+Briganti 2017 (sistematik biyopsi) ve Briganti 2019 (mpMR-hedefli biyopsi) nomogramları. Üyeliksiz,
+sunucusuz, çevrimdışı çalışır. Hedef kullanıcı, EAU'nun **%7 eşiğine** göre genişletilmiş pelvik lenf
+nodu diseksiyonu (ePLND) kararı veren ürologtur.
 
-### 1. General UI/UX Requirements
-- **No Login / Immediate Access:** The application must be instantly usable upon page load with zero registration or paywalls.
-- **Modern, Clean & Mobile-First Design:** Optimized for fast data entry in clinic or operating room settings.
-- **Tabbed Interface:** Easy switching between **Briganti 2017** and **Briganti 2019** models.
-- **Instant Client-Side Calculation:** Calculations happen automatically via JavaScript without backend requests.
-- **Visual Risk Guidance (EAU Threshold):**
-  - **Risk < 7%:** Highlighted in Green -> *"Risk is below the 7% threshold. ePLND can be safely spared."*
-  - **Risk ≥ 7%:** Highlighted in Red -> *"Risk is 7% or higher. Extended Pelvic Lymph Node Dissection (ePLND) is recommended."*
-- **PWA (Progressive Web App) Ready:** Must include a `manifest.json` and `service-worker.js` so urologists can click "Add to Home Screen" on iOS/Android and use it offline without internet access.
+Yayında: https://desideroo.github.io/briganti-nomogram/
 
----
+## Dil kuralı
 
-## Clinical Parameters & Input Specifications
+Kullanıcıya görünen her şey, kod yorumları, commit mesajları ve README **Türkçedir**. Kullanıcı
+Türkçe çalışan bir ürologtur; ona da Türkçe yanıt verin.
 
-### A. Briganti 2017 Nomogram
-Calculates LNI risk based on standard systematic biopsy parameters:
-1. **Serum PSA (ng/mL):** Decimal input field.
-2. **Clinical T Stage:** Dropdown selector:
-   - `T1c`
-   - `T2a`
-   - `T2b`
-   - `T2c / T3a`
-3. **Biopsy Gleason Score / Grade Group:** Dropdown explicitly showing Gleason scores:
-   - `3 + 3 (ISUP Grade Group 1)`
-   - `3 + 4 (ISUP Grade Group 2)`
-   - `4 + 3 (ISUP Grade Group 3)`
-   - `4 + 4 / 3 + 5 / 5 + 3 (ISUP Grade Group 4)`
-   - `4 + 5 / 5 + 4 / 5 + 5 (ISUP Grade Group 5)`
-4. **Percentage of Positive Biopsy Cores (%):** Percentage input (Positive cores / Total cores ratio).
-5. **Maximum Tumor Length (mm):** Numerical input for cancer core length.
+## Komutlar
 
----
+Derleme adımı, paket yöneticisi ve bağımlılık yoktur. Dosyalar doğrudan servis edilir.
 
-### B. Briganti 2019 Nomogram (MRI-Targeted)
-Calculates LNI risk adapted for multiparametric MRI (mpMRI) and fusion biopsy:
-1. **Serum PSA (ng/mL):** Decimal input field.
-2. **Clinical T Stage:** Dropdown selector:
-   - `T1 / T2a`
-   - `T2b / T2c`
-   - `≥ T3a`
-3. **Biopsy Gleason Score / Grade Group:** Dropdown explicitly showing Gleason scores:
-   - `3 + 3 (ISUP Grade Group 1)`
-   - `3 + 4 (ISUP Grade Group 2)`
-   - `4 + 3 (ISUP Grade Group 3)`
-   - `4 + 4 / 3 + 5 / 5 + 3 (ISUP Grade Group 4)`
-   - `4 + 5 / 5 + 4 / 5 + 5 (ISUP Grade Group 5)`
-4. **mpMRI PI-RADS Score:** Dropdown selector:
-   - `PI-RADS 3`
-   - `PI-RADS 4`
-   - `PI-RADS 5`
-5. **mpMRI Lesion Diameter (mm):** Numerical input for maximum MRI lesion size.
-6. **Percentage of Positive Cores in Systematic Biopsy (%):** Percentage input.
-7. **Maximum Tumor Length in Targeted Biopsy (mm):** Numerical input for cancer length in MRI-targeted cores.
+```bash
+python3 -m http.server 8123        # .claude/launch.json'daki "briganti" yapılandırması da aynısını yapar
+```
 
----
+| İş | Komut / adres |
+| --- | --- |
+| Testler | `http://localhost:8123/tests/` — 86 kontrol, tarayıcıda çalışır |
+| Katsayı denetimi | `python3 tools/reconstruct_nomogram.py` — uyuşmazlıkta çıkış kodu 1 |
+| Şekilleri PDF'ten yeniden ölç | `python3 tools/reconstruct_nomogram.py --pdf-2017 <yol> --pdf-2019 <yol>` |
+| Sözdizimi kontrolü | `node --check app.js` |
 
----
+Testler hakkında bilinmesi gerekenler:
 
-## ⚠️ Uygulama Notu (2026-08-08) — Değişken setleri düzeltildi
+- **Bir sunucu üzerinden açın.** `file://` ile iframe erişimi tarayıcı tarafından engellenir.
+- Komut satırı koşucusu yoktur; `tests/index.html` gerçek `index.html`'i bir iframe'e yükleyip
+  asıl arayüz üzerinden sınar. Tek bir testi çalıştırmanın yolu yok — paket bütün hâlinde koşar.
+- Sayfa, yüklemeden önce service worker önbelleğini boşaltır. Buna rağmen eski dosya servis
+  edildiğinden şüphelenirseniz önbelleği elle temizleyin; yanıltıcı kırmızı testlerin en sık nedeni budur.
+- Nomogram şekilleri yayıncıya ait telif korumalı içeriktir ve depoda **bulunmaz**. `--pdf` adımı
+  makalelerin kendi kopyanızı gerektirir; depodaki kayıtlı piksel ölçümleriyle çalışan varsayılan
+  denetim buna ihtiyaç duymaz.
 
-Yukarıdaki A ve B bölümlerindeki parametre listeleri, yayınlanmış Briganti modelleriyle **birebir
-örtüşmüyordu**. Uygulama, birincil kaynaklara ve modellerin resmî uygulamasına (Evidencio model 1555)
-göre düzeltilmiş değişken setleriyle geliştirildi:
+## Yayınlama
 
-- **2017**: `Maksimum tümör uzunluğu` modelde yoktur. Bunun yerine iki ayrı kor yüzdesi vardır:
-  *en yüksek dereceli* ve *daha düşük dereceli* kanser içeren kor yüzdesi. Klinik evre T1/T2/T3'tür.
-- **2019**: `PI-RADS skoru` ve `hedefli biyopside maksimum tümör uzunluğu` modelin bağımsız
-  değişkenleri değildir. Klinik evre mpMR'ye göre organa sınırlı / ekstrakapsüler yayılım / seminal
-  vezikül invazyonu olarak kodlanır; kor yüzdesi ise "klinik anlamlı kanser (ISUP ≥ 2) içeren kor
-  yüzdesi"dir.
-- Beta katsayıları makalelerin "Supplementary Table 1"indedir ve ana metinde yoktur. `app.js` içindeki
-  değerler, yayınlanmış nomogram şekillerinin (Şekil 1) geometrisinden geri hesaplanmış; makalelerin
-  Tablo 2 odds oranlarıyla ve bildirilen "%7 eşiği altındaki hasta oranı" ile doğrulanmıştır.
-  Ayrıntı için `README.md`.
-- Her iki model de ISUP derece grubunu 1-2 / 3 / 4-5 olarak kategorize eder.
+`main`'e push → GitHub Pages otomatik derler. Her yayında **iki yeri birden** artırın, yoksa
+istemciler eski dosyalarda kalır:
 
----
+- `sw.js` → `CACHE_VERSION`
+- `index.html` → alt bilgideki sürüm damgası (`.ver`)
 
----
+## Mimari
 
-## 🎨 Tasarım Kararı (2026-08-11) — renk yalnızca anlam taşır
+### Model tek bir yerde tanımlıdır
 
-Arayüz, klinik bir karar aracı kimliğiyle yeniden tasarlandı. Korunması gereken ilkeler:
+`app.js` içindeki `MODELS` nesnesi tek doğruluk kaynağıdır: katsayılar, sabit terim, geçerli
+aralıklar, alan etiketleri, birimler, cT eşlemesi ve kapsam uyarıları. Arayüz doğrulaması, hata
+mesajları ve "Özeti kopyala" çıktısı bu nesneden türetilir — bir alan eklemek/değiştirmek genelde
+yalnızca burayı ve HTML'deki karşılığını düzenlemek demektir.
 
-- **Doygun renk yalnızca karara ayrılmıştır.** Arayüzün tamamı mürekkep–kâğıt nötrleriyle çizilir;
-  yeşil ve kırmızı sadece eşik altı / eşik üstü sonucunu işaretler. Başlık çubuğunu, sekmeleri veya
-  kartları markalı bir renge boyamak sonucun sinyalini zayıflatır — yapmayın.
-- **Sayısal her değer tabular monospace** (`--mono`) ile dizilir: PSA, yüzdeler, cT kodları, risk.
-- **`text-transform: uppercase` kullanılmaz.** Tarayıcı Türkçe "i" harfini "I" yapar ve
-  "TAHMINI LNI" gibi yanlış yazım üretir.
-- **Karar ölçeği %0–20'de biter** (`GAUGE_MAX`), %0–50'de değil. Böylece %7 kapısı çubuğun %35'ine
-  düşer. CSS'teki `.gauge-gate` konumu ile `GAUGE_MAX` arasındaki tutarlılık test paketinde sınanır.
-- Geniş ekranda sonuç kartı sağ sütunda **yapışkandır**; telefonda ekranın altındaki **mini şerit**
-  aynı işi görür.
+Akış: `readModel(key)` → doğrulama → `computeRisk(key, values)` → `showResult` / `showPending`.
+Her `input` ve `change` olayında yeniden hesaplanır; "Hesapla" düğmesi yoktur.
 
-## Technical Stack & Output Deliverables
-- Single Page Web App using pure HTML5, CSS3, and JavaScript (Vanilla) or Tailwind CSS.
-- Production-ready files: `index.html`, `styles.css`, `app.js`, `manifest.json`, `sw.js`.
-- Responsive layout that fits nicely on both smartphone screens and desktop monitors.
+`window.Briganti` yalnızca test paketinin çalışan gerçek uygulamaya karşı iddia kurabilmesi için
+dışa açılır. Üretim kodu onu kullanmaz.
+
+### Katsayılara elle dokunmayın — üçlü kilit
+
+Briganti β katsayıları açık literatürde yayınlanmamıştır (her iki makale de "Supplementary Table
+1"e bırakır; resmî uygulama Evidencio ücretli). Depodaki değerler, yayınlanmış nomogram
+şekillerinin geometrisinden geri hesaplanmıştır. Üç dosya aynı sayıları bağımsız olarak taşır:
+
+1. `app.js` → `MODELS` (uygulamanın kullandığı)
+2. `tools/reconstruct_nomogram.py` → `MEASUREMENTS` (piksel ölçümlerinden yeniden türetir ve
+   `app.js` ile karşılaştırır; ayrıca yayınların Tablo 2 odds oranlarına ve bildirdikleri "%7 eşiği
+   altındaki hasta oranı"na karşı sınar)
+3. `tests/index.html` → `EXPECTED` (arayüz üzerinden doğrular)
+
+Bir katsayıyı yalnızca `app.js`'te değiştirmek denetimi ve testleri kırar — **doğru sıra**:
+betikteki `MEASUREMENTS`'ı düzeltin, betiği çalıştırın, çıktısını `app.js` ve `tests/index.html`'e
+taşıyın. Bu kilit projenin varlık nedenidir; zayıflatmayın.
+
+### HTML ↔ test sözleşmesi
+
+`tests/index.html` gerçek arayüzü ID, `data-*` özniteliği ve sınıf adıyla sürer. Yeniden
+adlandırmak testleri kırar. Sarmalayıcı `div` eklemek serbesttir; şu çapaları korumak zorunludur:
+
+- **ID kalıbı**: `<alan>-<model>` — ör. `psa-2017`, `stage-2019`, `coreshigh-2017`, `cores-2019`;
+  ayrıca `tab-`, `panel-`, `stagecur-`, `stagenote-`, `helper-`, `pos-`, `tot-` önekleri.
+- **Tekil ID'ler**: `result`, `resultBody`, `resultEmpty`, `riskValue`, `verdict`, `gaugeFill`,
+  `resultModel`, `missingList`, `minibar`, `miniValue`, `miniNote`, `copyBtn`, `toast`.
+- **Öznitelikler**: `data-error-for`, `data-reset`, `data-toggle-helper`, `data-target`,
+  `data-role="pos|tot|def"`, `data-model`, `data-stage`.
+- **Sınıflar**: `.ct-rung` / `.ct-node` / `.ct-sub` / `.ct-text`, durum sınıfları
+  `.is-active` / `.is-safe` / `.is-risk` / `.is-shown` / `.is-tucked`.
+- `#stagecur-<model>` **yalnızca tanım metnini** içermelidir: bir test onun tüm `textContent`'ini
+  merdivendeki `.ct-text` ile karşılaştırır. İçine etiket eklemeyin (görsel önek gerekirse CSS
+  `::before` kullanın).
+
+### CSS ↔ JS bağlantıları
+
+- `GAUGE_MAX` (`app.js`) ile `.gauge-gate { left }` (`styles.css`) birbirine bağlıdır: kapının
+  konumu `EAU_THRESHOLD / GAUGE_MAX` olmalıdır. Tutarlılık test paketinde sınanır — biri diğerinden
+  habersiz değişirse gösterge sessizce yanlış yer göstermek yerine test kırmızıya döner.
+- `styles.css` başındaki genel `[hidden] { display: none !important; }` kuralı **gereklidir**.
+  `.mini-calc` ve `.minibar` gibi bileşenler `display` atadığı için, bu kural olmadan yazar stili
+  tarayıcının `hidden` davranışını ezer ve öğe gizlenmez. (Bu hata bir kez gerçekten oluştu: kor
+  hesaplayıcı kutuları sitede sürekli açık duruyordu.)
+
+## Klinik gerçekler — kolayca yanlış yapılanlar
+
+Bu maddeler yayınlanmış modellerin kendi tercihleridir, uygulama kısıtı veya hata değildir.
+Projenin ilk sürümünde yanlış değişken setleriyle başlanmıştı; birincil kaynaklara ve modellerin
+resmî uygulamasına (Evidencio model 1555) göre düzeltildi.
+
+**Briganti 2017** — değişkenler: PSA, klinik evre (T1/T2/T3), biyopsi ISUP derece grubu, *en yüksek
+dereceli* kanser içeren kor yüzdesi, *daha düşük dereceli* kanser içeren kor yüzdesi.
+`Maksimum tümör uzunluğu` bu modelde **yoktur**.
+
+**Briganti 2019** — değişkenler: PSA, mpMR'de klinik evre (organa sınırlı / ekstrakapsüler yayılım /
+seminal vezikül invazyonu), mpMR'de maksimum indeks lezyon çapı, hedefli biyopside ISUP derece
+grubu, sistematik biyopside klinik anlamlı kanser (ISUP ≥ 2) içeren kor yüzdesi.
+`PI-RADS skoru` ve `hedefli biyopside maksimum tümör uzunluğu` bu modelin bağımsız değişkenleri
+**değildir**; bu yüzden forma alınmamıştır.
+
+**ISUP gruplandırması** — her iki model de dereceleri 1-2 / 3 / 4-5 olarak kategorize eder. ISUP 1
+ile 2 aynı, ISUP 4 ile 5 aynı riski verir.
+
+**cT eşlemesi** — arayüz cT1, cT2, cT3a, cT3b, cT4 sunar; modellerin üç kategorisine `stageOptions`
+ile eşlenir. 2017'de cT3a = cT3b = cT4; 2019'da cT1 = cT2. **cT4 hiçbir modelin geliştirme
+kohortunda yoktur** — en yüksek evre katsayısı kullanılır ve arayüzde ekstrapolasyon uyarısı çıkar.
+
+## Tasarım: neyi değiştirebilirsiniz, neyi değiştiremezsiniz
+
+Görsel tasarım baştan yazılabilir. Aşağıdaki ilk liste tasarımdan bağımsız olarak geçerlidir;
+ikinci liste yalnızca mevcut tasarımın tercihidir ve serbestçe atılabilir.
+
+### Hangi tasarımda olursa olsun geçerli
+
+- **`text-transform: uppercase` kullanmayın.** Tarayıcı Türkçe "i" harfini "I" yapar ve
+  "TAHMINI LNI" gibi yanlış yazım üretir. Bu bir estetik tercih değil, yazım hatası.
+- **Yüzde işareti sayının önüne yazılır** (%7 — `7%` değil).
+- Açık ve koyu tema birlikte desteklenir (`prefers-color-scheme`); yeni renk eklerken ikisini de
+  tanımlayın.
+- Dokunma hedefleri en az ~44 px; girdilerde `font-size: 16px` (iOS odakta yakınlaştırmasın).
+- Yukarıdaki **HTML ↔ test sözleşmesi** ve **CSS ↔ JS bağlantıları** bölümleri bağlayıcıdır.
+  Görünüm tamamen değişse de o ID, öznitelik ve sınıflar yerinde kalmalı; aksi hâlde 86 testin
+  büyük kısmı kırılır. Sarmalayıcı eklemek, sınıf eklemek, düzeni değiştirmek serbesttir.
+
+### Yalnızca mevcut tasarımın tercihi (değiştirilebilir)
+
+- Doygun rengin yalnızca karara (eşik altı yeşil / eşik üstü kırmızı) ayrılması, arayüzün geri
+  kalanının nötr çizilmesi. *Gerekçe:* kart, sekme ve başlık da renkliyken sonucun sinyali
+  zayıflıyordu. Yeni tasarım bunu başka yolla çözebilir; çözdüğünden emin olun.
+- Sayısal değerlerin tabular monospace ile dizilmesi (PSA, yüzdeler, cT kodları, risk).
+- Geniş ekranda sağ sütunda yapışkan sonuç kartı + telefonda alttaki mini şerit.
+  *Tuzak:* yapışkanlık için sağ sütun satır yüksekliğine gerilmeli — kapsayıcıya
+  `align-items: start` eklemek sütunu içeriği kadar kısaltır ve kayacak alan bırakmaz.
+- Karar ölçeğinin %0–20'de bitmesi. Değiştirirseniz `GAUGE_MAX` ile kapının CSS'teki konumunu
+  **birlikte** güncelleyin (test ikisinin tutarlılığını sınar).
+- cT evre rehberinin merdiven biçimi. Yapıyı (`.ct-rung` / `.ct-node` / `.ct-sub` / `.ct-text`)
+  koruyun, görünümü değiştirin.
+
+### Yeniden tasarım yaparken doğrulama
+
+Görsel çalışma bittiğinde üçü de yeşil olmalı:
+
+```bash
+node --check app.js
+python3 tools/reconstruct_nomogram.py     # çıkış kodu 0
+```
+
+ve `http://localhost:8123/tests/` → 86/86. Ardından `sw.js` içindeki `CACHE_VERSION` ile alt
+bilgideki sürüm damgasını artırın.
+
+## Kapsam sınırı
+
+Bu site CE işaretli bir tıbbi cihaz değildir ve öyleymiş gibi sunulmamalıdır. Sonuç sayfasındaki
+feragat, kaynak şeridi ve "Model ayrıntıları" bölümündeki yüksek riskli hasta uyarısı (Di Pierro
+GB, ve ark. *Cancers* 2023;15:1683) bilinçli olarak oradadır — kaldırmayın.
