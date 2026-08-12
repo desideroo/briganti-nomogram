@@ -9,7 +9,7 @@ gönderilmez.
 | Dosya | İçerik |
 | --- | --- |
 | `index.html` | Tek sayfa uygulama: sekmeler, iki form, sonuç paneli |
-| `styles.css` | Mobil öncelikli tasarım, açık + koyu tema. Kimlik "ölçü aleti": nötr-soğuk kâğıt zemin üzerinde saç teli çizgiler, sayfanın tek koyu yüzeyi olan okuma paneli. Doygun renk yalnızca karara ayrılmıştır (eşik altı nane / eşik üstü kehribar) ve yalnızca panelin içinde görünür; sayısal değerler tabular monospace |
+| `styles.css` | Mobil öncelikli tasarım, açık + koyu tema. Kimlik "ölçü aleti": nötr-soğuk kâğıt zemin üzerinde saç teli çizgiler, sayfanın tek koyu yüzeyi olan okuma paneli. Doygun renk yalnızca karara ayrılmıştır (eşik altı nane · %5-%7 bandı kehribar · %7 üstü kırmızı) ve yalnızca panelin içinde görünür; sayısal değerler tabular monospace |
 | `app.js` | Model katsayıları, canlı hesaplama, doğrulama, PWA kancaları |
 | `manifest.json` | "Ana ekrana ekle" için PWA tanımı |
 | `sw.js` | Service worker — uygulama kabuğunu önbelleğe alır |
@@ -128,7 +128,7 @@ python3 -m http.server 8123
 ```
 
 Sonra `http://localhost:8123/tests/` adresini açın. Test sayfası gerçek uygulamayı bir iframe içinde
-yükler ve 89 kontrol çalıştırır: katsayıların betiğin türettiği değerlerle birebir aynı olması,
+yükler ve 100 kontrol çalıştırır: katsayıların betiğin türettiği değerlerle birebir aynı olması,
 yayınlanmış odds oranlarıyla tutarlılık, elle doğrulanmış referans senaryolar, ISUP gruplandırması,
 cT evresi eşlemesi ve evre rehberi etkileşimi, %5 eşiği davranışı ve renk kodlaması, karar ölçeği
 (%5 kapısı ve %7 işaretçisinin CSS↔JS tutarlılığı), girdi aralıkları, kor yüzdesi hesaplayıcısı ve
@@ -148,6 +148,20 @@ bildirdiği "eşik altında kalan hasta oranı" (2017 için %69, 2019 için %57)
 `tools/reconstruct_nomogram.py` sabit terimi bu sayılarla sınadığı için betikteki %7 referansları
 kasıtlıdır. Arayüzde `ALT_THRESHOLD` sabiti, karar ölçeğindeki ikincil kesikli işaretçi
 (`.gauge-alt`) ve bir dipnot olarak durur; karara girmez.
+
+### Sonucun üç bandı
+
+Karar (ePLND evet/hayır) %5'te verilir; %7 kararı değiştirmez, ne kadar tartışmasız olduğunu
+söyler. Sonuç paneli bu yüzden üç ayrı uyarı ve üç ayrı renk gösterir (`app.js` → `riskState()`):
+
+| Bant | Aralık | Sınıf | Renk | Uyarı |
+| --- | --- | --- | --- | --- |
+| `safe` | risk &lt; %5 | `.is-safe` | nane | ePLND güvenle atlanabilir |
+| `band` | %5 ≤ risk &lt; %7 | `.is-risk` | kehribar | EAU eşiğine göre ePLND önerilir, %7 kesme noktasına göre atlanabilir — iki kaynağın ayrıştığı tartışmalı bant |
+| `high` | risk ≥ %7 | `.is-risk .is-high` | kırmızı | her iki eşik de aşıldı, ePLND önerilir |
+
+Renk tek başına taşıyıcı değildir: her bandın kendi metni vardır, orta bant mini şeritte
+"sınırda" etiketi alır ve `high` bandında göstergedeki %7 işaretçisi kesikliden dolu renge döner.
 
 Sonuç panelindeki karar ölçeği %0–20 aralığını gösterir (`GAUGE_MAX`): klinik kararın tamamı bu
 aralıkta verilir, %20 üstü zaten tartışmasız ePLND'dir. Ölçeği burada bitirmek %5 kapısını çubuğun

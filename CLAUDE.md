@@ -26,7 +26,7 @@ python3 -m http.server 8123        # .claude/launch.json'daki "briganti" yapıla
 
 | İş | Komut / adres |
 | --- | --- |
-| Testler | `http://localhost:8123/tests/` — 89 kontrol, tarayıcıda çalışır |
+| Testler | `http://localhost:8123/tests/` — 100 kontrol, tarayıcıda çalışır |
 | Katsayı denetimi | `python3 tools/reconstruct_nomogram.py` — uyuşmazlıkta çıkış kodu 1 |
 | Şekilleri PDF'ten yeniden ölç | `python3 tools/reconstruct_nomogram.py --pdf-2017 <yol> --pdf-2019 <yol>` |
 | Sözdizimi kontrolü | `node --check app.js` |
@@ -94,7 +94,11 @@ adlandırmak testleri kırar. Sarmalayıcı `div` eklemek serbesttir; şu çapal
   `data-role="pos|tot|def"`, `data-model`, `data-stage`.
 - **Sınıflar**: `.ct-rung` / `.ct-node` / `.ct-sub` / `.ct-text`, gösterge parçaları
   `.gauge-track` / `.gauge-gate` / `.gauge-alt`, durum sınıfları
-  `.is-active` / `.is-safe` / `.is-risk` / `.is-shown` / `.is-tucked`.
+  `.is-active` / `.is-safe` / `.is-risk` / `.is-high` / `.is-shown` / `.is-tucked`.
+- **Karar durumu iki sınıfla taşınır, üç değil.** `#result` ve `#minibar` üzerinde `.is-risk`
+  "EAU eşiği aşıldı" demektir (yani karar: ePLND önerilir) ve %5'in üzerindeki **her** sonuçta
+  bulunur; `.is-high` onu daraltır (%7 de aşıldı). Üçüncü bir dışlayıcı sınıf **eklemeyin** —
+  `.is-risk`'i bandın dışına çıkarmak kararın ikili anlamını bozar ve testleri kırar.
 - `#stagecur-<model>` **yalnızca tanım metnini** içermelidir: bir test onun tüm `textContent`'ini
   merdivendeki `.ct-text` ile karşılaştırır. İçine etiket eklemeyin (görsel önek gerekirse CSS
   `::before` kullanın).
@@ -134,9 +138,19 @@ grubu, sistematik biyopside klinik anlamlı kanser (ISUP ≥ 2) içeren kor yüz
   %5'i aşan hastalarda ePLND önerir. **Kullanılan nomogram sürümünden (2012 / 2017 / 2019)
   bağımsızdır.** Uygulamanın kararı budur: `app.js` → `EAU_THRESHOLD`.
 - **%7 = Gandaglia ve ark.'nın kesme noktası, EAU'nun değil.** Nomogramların dışsal doğrulama ve
-  karar eğrisi (DCA) analizlerinde önerilen alternatiftir. `app.js` → `ALT_THRESHOLD`; arayüzde
-  yalnızca göstergedeki kesikli ikincil işaretçi (`.gauge-alt`), bir dipnot (`.gauge-foot`) ve
-  giriş kuralının altındaki not (`.thesis-alt`) olarak görünür — **karara girmez.**
+  karar eğrisi (DCA) analizlerinde önerilen alternatiftir. `app.js` → `ALT_THRESHOLD`. **Kararı
+  değiştirmez**, kararın ne kadar tartışmasız olduğunu söyler.
+- **Sonuç üç banda ayrılır** (`app.js` → `riskState()`, `MESSAGES`, `SHORT`):
+
+  | Bant | Aralık | Sınıf | Lamba | Karar |
+  | --- | --- | --- | --- | --- |
+  | `safe` | risk &lt; %5 | `.is-safe` | `--safe` nane | ePLND atlanabilir |
+  | `band` | %5 ≤ risk &lt; %7 | `.is-risk` | `--risk` kehribar | ePLND önerilir — ama %7'nin altında, iki kaynağın ayrıştığı tartışmalı bant |
+  | `high` | risk ≥ %7 | `.is-risk .is-high` | `--high` kırmızı | ePLND önerilir, her iki eşik de aşıldı |
+
+  Her bandın kendi uyarı metni vardır; renk tek başına taşıyıcı değildir (bant ayrıca "sınırda"
+  etiketi alır, `%7` işaretçisi `high` bandında yanar). Yeni bir bant eklemeyin — üç bant
+  literatürdeki iki kesme noktasından türüyor, keyfi değil.
 - `tools/reconstruct_nomogram.py` içindeki %7 referansları **kasıtlıdır ve değişmemelidir**:
   betik sabit terimi, yayınların kendi bildirdiği "%7 eşiği altında kalan hasta oranı"
   (2017: %69, 2019: %57) ile sınar. Bu, EAU eşiğiyle ilgili değil, yayınla tutarlılık sınamasıdır.

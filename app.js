@@ -145,13 +145,32 @@
   // edilebilir kılar.
   var GAUGE_MAX = 20;
 
+  /* Sonuç üç banda ayrılır. Karar (ePLND evet/hayır) hâlâ %5'te verilir; %7 ise
+     kararın ne kadar tartışmasız olduğunu söyler:
+       safe  risk < %5        iki eşik de aşılmadı
+       band  %5 <= risk < %7  EAU eşiği aşıldı, alternatif kesme noktası aşılmadı
+                              — iki kaynağın ayrıştığı, klinik olarak tartışmalı bant
+       high  risk >= %7       her iki eşik de aşıldı, karar tartışmasız           */
   var MESSAGES = {
     safe: 'Risk %5 eşiğinin altında. ePLND güvenle atlanabilir.',
-    risk: 'Risk %5 veya üzerinde. Genişletilmiş pelvik lenf nodu diseksiyonu (ePLND) önerilir.'
+    band: 'Risk %5–%7 bandında. EAU eşiğine göre ePLND önerilir; Gandaglia ve ark.\'nın ' +
+          'alternatif %7 kesme noktasına göre ise atlanabilir.',
+    high: 'Risk %7 ve üzerinde. Her iki eşik de aşıldı; genişletilmiş pelvik lenf nodu ' +
+          'diseksiyonu (ePLND) önerilir.'
   };
 
   // Yapışkan mini şerit için kısaltılmış karar.
-  var SHORT = { safe: 'ePLND atlanabilir', risk: 'ePLND önerilir' };
+  var SHORT = {
+    safe: 'ePLND atlanabilir',
+    band: 'ePLND önerilir · sınırda',
+    high: 'ePLND önerilir'
+  };
+
+  /** Riski üç banttan birine yerleştirir. */
+  function riskState(risk) {
+    if (risk < EAU_THRESHOLD) { return 'safe'; }
+    return risk < ALT_THRESHOLD ? 'band' : 'high';
+  }
 
   /* ------------------------------- yardımcılar ---------------------------- */
 
@@ -253,9 +272,10 @@
       return;
     }
     miniValueEl.textContent = state.shown;
-    miniNoteEl.textContent = state.isRisk ? SHORT.risk : SHORT.safe;
+    miniNoteEl.textContent = SHORT[state.state];
     minibarEl.classList.toggle('is-risk', state.isRisk);
     minibarEl.classList.toggle('is-safe', !state.isRisk);
+    minibarEl.classList.toggle('is-high', state.isHigh);
     minibarEl.hidden = false;
     document.body.classList.add('has-minibar');
     syncMinibarTuck();
@@ -283,7 +303,7 @@
   function showPending(missing, hasErrors) {
     lastResult = null;
     updateMinibar(null);
-    resultEl.classList.remove('is-safe', 'is-risk');
+    resultEl.classList.remove('is-safe', 'is-risk', 'is-high');
     bodyEl.hidden = true;
     emptyEl.hidden = false;
     missingListEl.innerHTML = '';
@@ -302,17 +322,21 @@
   }
 
   function showResult(key, risk) {
-    var isRisk = risk >= EAU_THRESHOLD;
+    var state = riskState(risk);
+    var isRisk = state !== 'safe';
+    var isHigh = state === 'high';
     var shown = risk < 0.1 ? '<0,1' : formatNumber(risk, 1);
 
     emptyEl.hidden = true;
     bodyEl.hidden = false;
     resultModelEl.textContent = MODELS[key].label;
     riskValueEl.textContent = shown;
-    verdictEl.textContent = isRisk ? MESSAGES.risk : MESSAGES.safe;
+    verdictEl.textContent = MESSAGES[state];
 
+    // is-risk "EAU eşiği aşıldı" demeye devam eder; is-high onu daraltır.
     resultEl.classList.toggle('is-risk', isRisk);
     resultEl.classList.toggle('is-safe', !isRisk);
+    resultEl.classList.toggle('is-high', isHigh);
 
     gaugeFillEl.style.width = Math.min(100, (risk / GAUGE_MAX) * 100) + '%';
     gaugeEl.setAttribute('aria-label',
@@ -320,7 +344,7 @@
       (isRisk ? 'üzerinde veya eşiğinde' : 'altında') + '; alternatif %7 kesme noktasının ' +
       (risk >= ALT_THRESHOLD ? 'üzerinde veya eşiğinde' : 'altında') + '.');
 
-    lastResult = { key: key, risk: risk, shown: shown, isRisk: isRisk };
+    lastResult = { key: key, risk: risk, shown: shown, state: state, isRisk: isRisk, isHigh: isHigh };
     updateMinibar(lastResult);
   }
 
@@ -512,14 +536,7 @@
     var model = MODELS[key];
     var lines = [model.label + ' nomogramı — tahmini LNİ riski: %' + lastResult.shown];
 
-    lines.push(lastResult.isRisk ? MESSAGES.risk : MESSAGES.safe);
-    // İki eşiğin ayrıştığı bant tam da klinik olarak tartışmalı olan yerdir;
-    // yalnızca oraya düşen sonuçlarda not eklenir.
-    if (lastResult.risk >= EAU_THRESHOLD && lastResult.risk < ALT_THRESHOLD) {
-      lines.push('Not: Risk %' + EAU_THRESHOLD + '-%' + ALT_THRESHOLD + ' bandında. ' +
-        'Gandaglia ve ark.\'nın doğrulama çalışmalarında önerdiği alternatif %' + ALT_THRESHOLD +
-        ' kesme noktasına göre eşik altında kalır.');
-    }
+    lines.push(MESSAGES[lastResult.state]);
     lines.push('');
     Object.keys(model.selects).forEach(function (name) {
       lines.push(model.selects[name] + ': ' + selectedText(name + '-' + key));

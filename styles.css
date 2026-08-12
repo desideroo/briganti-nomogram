@@ -61,9 +61,14 @@
   --slab-ink: #e8ecee;
   --slab-ink-2:#92a0a7;
 
-  /* --- karar lambaları ---------------------------------------------------- */
+  /* --- karar lambaları -----------------------------------------------------
+     Üç bant, üç lamba: nane (eşik altı), kehribar (%5-%7 tartışmalı bant),
+     kırmızı (%7 ve üzeri, tartışmasız). Kehribar aynı zamanda genel hata /
+     uyarı rengidir — karar rengi değil, "dikkat" rengidir.
+     ------------------------------------------------------------------------ */
   --safe:     #4fd39a;
   --risk:     #ff7048;
+  --high:     #ff4256;
   --led:      var(--safe);          /* .result / .minibar durumuna göre değişir */
 
   /* --- ölçü --------------------------------------------------------------- */
@@ -109,6 +114,7 @@
 
     --safe:     #4fd39a;
     --risk:     #ff7d55;
+    --high:     #ff5266;
 
     --lift: 0 18px 40px -22px rgba(0, 0, 0, .95);
   }
@@ -327,9 +333,10 @@ code {
 }
 
 .fork-cond {
-  min-width: 6.7em;
+  min-width: 8.2em;
   font-family: var(--mono);
   font-size: .8rem;
+  font-variant-numeric: tabular-nums;
   color: var(--ink-3);
 }
 
@@ -348,7 +355,21 @@ code {
   background: var(--ink-3);
 }
 .fork-arm.is-under .fork-act::before { background: var(--safe); }
-.fork-arm.is-over  .fork-act::before { background: var(--risk); }
+.fork-arm.is-band  .fork-act::before { background: var(--risk); }
+.fork-arm.is-over  .fork-act::before { background: var(--high); }
+
+/* Renge güvenmeyen ikinci işaret: sınırdaki bandın kendi etiketi var. */
+.fork-tag {
+  margin-left: 2px;
+  padding: 1px 7px;
+  border: 1px solid var(--rule-2);
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: .64rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: var(--ink-3);
+}
 
 .thesis-note {
   max-width: 62ch;
@@ -905,8 +926,10 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   background: var(--slab-3);
   transition: background .2s;
 }
+/* is-risk = EAU eşiği aşıldı; is-high onu daraltır (%7 de aşıldı). */
 .result.is-safe { --led: var(--safe); }
 .result.is-risk { --led: var(--risk); }
+.result.is-risk.is-high { --led: var(--high); }
 .result.is-safe::before, .result.is-risk::before { background: var(--led); }
 
 .result-label {
@@ -1076,6 +1099,12 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   font-weight: 600;
   color: var(--slab-ink-2);
 }
+/* %7 de aşıldıysa ikincil işaretçi de yanar: "bunu da geçtiniz". */
+.result.is-high .gauge-alt {
+  background: var(--led);
+  opacity: 1;
+}
+.result.is-high .gauge-alt span { color: var(--led); }
 
 .gauge-foot {
   display: flex;
@@ -1172,6 +1201,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 }
 .minibar.is-safe { --led: var(--safe); }
 .minibar.is-risk { --led: var(--risk); }
+.minibar.is-risk.is-high { --led: var(--high); }
 
 .minibar.is-tucked {
   transform: translateY(140%);

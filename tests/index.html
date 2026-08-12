@@ -232,20 +232,61 @@ function run(win, doc) {
   check('eşik altı mesajı', /güvenle atlanabilir/.test(doc.getElementById('verdict').textContent),
         doc.getElementById('verdict').textContent);
 
+  check('eşik altı → is-high yok', !result.classList.contains('is-high'), result.className);
+
   setSel('gleason-2017', '3');
   check('eşik üstü → kırmızı', result.classList.contains('is-risk'),
         doc.getElementById('riskValue').textContent + '% · ' + result.className);
   check('eşik üstü mesajı', /ePLND\) önerilir/.test(doc.getElementById('verdict').textContent),
         doc.getElementById('verdict').textContent);
 
-  /* %5-%7 bandı — iki eşiğin ayrıştığı yer. Karar EAU eşiğine göre verilmeli:
-     bu hasta %7'nin altında olsa da ePLND önerilir. */
+  /* Üç bant. Karar (ePLND evet/hayır) %5'te verilir — is-risk bunu taşır.
+     %7 kararı değiştirmez, ne kadar tartışmasız olduğunu söyler — is-high. */
+  var verdictText = function () { return doc.getElementById('verdict').textContent; };
+
+  /* (a) %5-%7 bandı: EAU eşiği aşıldı, alternatif kesme noktası aşılmadı. */
   setVal('psa-2017', 10); setSel('stage-2017', 'cT2'); setSel('gleason-2017', '1');
   setVal('coreshigh-2017', 40); setVal('coreslow-2017', 20);
   var band = parseFloat(doc.getElementById('riskValue').textContent.replace(',', '.'));
-  check('%5-%7 bandı EAU eşiğine göre kırmızı',
-        band >= B.EAU_THRESHOLD && band < B.ALT_THRESHOLD && result.classList.contains('is-risk'),
-        band + '% · ' + result.className);
+  check('%5-%7 bandı gerçekten bantta', band >= B.EAU_THRESHOLD && band < B.ALT_THRESHOLD,
+        band + '%');
+  check('%5-%7 bandı EAU eşiğine göre kırmızı (is-risk)',
+        result.classList.contains('is-risk'), band + '% · ' + result.className);
+  check('%5-%7 bandı is-high almaz', !result.classList.contains('is-high'), result.className);
+  check('%5-%7 bandı iki eşiği de anan kendi uyarısını verir',
+        /bandında/.test(verdictText()) && /alternatif/.test(verdictText()),
+        verdictText());
+  var bandVerdict = verdictText();
+  check('%5-%7 bandı şeridi "sınırda" der',
+        /sınırda/.test(doc.getElementById('miniNote').textContent),
+        doc.getElementById('miniNote').textContent);
+
+  /* (b) %7 ve üzeri: her iki eşik de aşıldı. */
+  setSel('gleason-2017', '3');
+  var high = parseFloat(doc.getElementById('riskValue').textContent.replace(',', '.'));
+  check('%7 üstü gerçekten %7 üstünde', high >= B.ALT_THRESHOLD, high + '%');
+  check('%7 üstü is-risk + is-high alır',
+        result.classList.contains('is-risk') && result.classList.contains('is-high'),
+        high + '% · ' + result.className);
+  check('%7 üstü uyarısı banttakinden farklı', verdictText() !== bandVerdict, verdictText());
+  check('%7 üstü uyarısı her iki eşiği de aştığını söyler',
+        /Her iki eşik de aşıldı/.test(verdictText()), verdictText());
+  check('%7 üstü şeridi "sınırda" demez',
+        !/sınırda/.test(doc.getElementById('miniNote').textContent),
+        doc.getElementById('miniNote').textContent);
+
+  /* (c) üç bandın lamba rengi birbirinden farklı olmalı — renk kodu tek yerden
+     (--led) geliyor, yanlışlıkla aynı değere düşerse sinyal kaybolur. */
+  var led = function () { return win.getComputedStyle(result).getPropertyValue('--led').trim(); };
+  var ledHigh = led();
+  setVal('psa-2017', 10); setSel('gleason-2017', '1');
+  var ledBand = led();
+  setVal('psa-2017', 6); setSel('stage-2017', 'cT1'); setVal('coreshigh-2017', 20);
+  setVal('coreslow-2017', 10);
+  var ledSafe = led();
+  check('üç bandın karar rengi üç ayrı değer',
+        ledSafe !== ledBand && ledBand !== ledHigh && ledSafe !== ledHigh,
+        'eşik altı ' + ledSafe + ' · bant ' + ledBand + ' · %7 üstü ' + ledHigh);
 
   /* 5a — evre rehberi etkileşimi */
   group('cT evre rehberi (dokunarak seçim)');
